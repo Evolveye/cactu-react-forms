@@ -1,6 +1,11 @@
 import { FocusEvent, FormEvent, useContext, useEffect, useState } from "react"
-import { classNames, FormContext, InputProps, InputValue, isError, NativeInputProps } from "./utils"
+import { classNames, FormContext, InputProps, InputValue, isError, NativeInputProps } from "./utils.js"
 
+
+const isEvent = something => true
+  && something
+  && typeof something === `object`
+  && [ `SyntheticBaseEvent` ].includes( something.constructor.name )
 
 
 export function Input({
@@ -10,12 +15,13 @@ export function Input({
   style,
   className,
   errorClassName,
-  inheritClassNames,
+  inheritClassNames = true,
   label = children,
-  placeholder = ``,
+  placeholder,
   initialValue,
   emptyValue,
   validator,
+  meta,
 }:InputProps & { render: (props:NativeInputProps) => JSX.Element }) {
   const ctx = useContext( FormContext )
 
@@ -30,7 +36,7 @@ export function Input({
   } : {}
 
   const updateValues = (name:string, value:InputValue) => {
-    ctx.updateValues?.( name, value ?? (emptyValue === undefined ? null : emptyValue) )
+    ctx.updateValues?.( name, value ?? (emptyValue === undefined ? null : emptyValue), meta )
   }
 
   const fullClassName = classNames(
@@ -48,7 +54,9 @@ export function Input({
     style,
     className: label ? undefined : fullClassName,
     onInput: eOrValue => {
-      const value = eOrValue instanceof Event ? (eOrValue as unknown as FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
+      const value = isEvent( eOrValue )
+        ? (eOrValue as unknown as FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value
+        : eOrValue
 
       if (validator) {
         const error = validator( value )
@@ -60,7 +68,9 @@ export function Input({
       updateValues( name, value )
     },
     onBlur: eOrValue => {
-      const value = eOrValue instanceof Event ? (eOrValue as unknown as FocusEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
+      const value = isEvent( eOrValue )
+        ? (eOrValue as unknown as FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value
+        : eOrValue
 
       if (!validator) return
 
@@ -89,6 +99,11 @@ export function Input({
       {error && <><br /><p>{error}</p></>}
     </>
   )
+
+  if (!name) {
+    console.error( `You have to pass "name" property to input` )
+    return null
+  }
 
   return label
     ? <label className={label ? fullClassName : undefined}>{content}</label>

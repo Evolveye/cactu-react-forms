@@ -34,6 +34,7 @@ export type InputProps<T=InputValue> = {
   placeholder?: string,
   label?: string | React.ReactChildren,
   emptyValue?: InputValue,
+  meta?: { [key:string]: string | number }
 }
 
 export type NativeInputProps<T=unknown> = {

@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, ReactNode, createContext } from "react"
-import { classNames, FormContext } from "./utils"
+import { classNames, FormContext } from "./utils.js"
 
 type SelectProps = {
   name: string,

@@ -1,5 +1,5 @@
 import { Children, CSSProperties, ReactChildren, ReactNode, useContext, useEffect, useMemo, useState } from "react"
-import { classNames, FormContext, FormContextValue, InputProps, InputValue, InputValues, isError, NativeInputProps } from "./utils"
+import { classNames, FormContext, FormContextValue, InputProps, InputValue, InputValues, isError, NativeInputProps } from "./utils.js"
 
 
 type ComplexInputProps = {
@@ -13,96 +13,9 @@ type ComplexInputProps = {
   initialValue?: InputValue,
   validator?: (value:string) => boolean,
   stringify?: (value:InputValue) => string,
+  meta?: { [key:string]: string | number }
 }
 
-
-export function Input({
-  name,
-  render,
-  children,
-  style,
-  className,
-  errorClassName,
-  inheritClassNames,
-  label = children,
-  placeholder = ``,
-  initialValue,
-  emptyValue,
-  validator,
-}:InputProps & { render: (props:NativeInputProps) => JSX.Element }) {
-  const ctx = useContext( FormContext )
-
-  const fixedValue = initialValue ?? ctx.values?.[ name ]
-  const isValuePromise = fixedValue instanceof Promise
-  const [ value, setValue ] = useState( isValuePromise ? null : fixedValue )
-  const [ error, setError ] = useState<null | string>( null )
-
-  const inheritedClassNames = inheritClassNames ? {
-    className: ctx.fieldsClassName || ``,
-    errorClassName: ctx.fieldsErrorClassName || ``,
-  } : {}
-
-  const updateValues = (name:string, value:InputValue) => {
-    ctx.updateValues?.( name, value ?? (emptyValue === undefined ? null : emptyValue) )
-  }
-
-  const fullClassName = classNames(
-    inheritedClassNames.className,
-    isError( error ) ? inheritedClassNames.errorClassName : undefined,
-    className,
-    isError( error ) ? errorClassName : undefined,
-  )
-
-  const properties:NativeInputProps = {
-    name,
-    placeholder,
-    autoComplete: name,
-    defaultValue: value,
-    style,
-    className: label ? undefined : fullClassName,
-    onInput: ({ currentTarget:{ value } }) => {
-      if (validator) {
-        const error = validator( value )
-
-        if (isError( error )) return updateValues( name, `` )
-      }
-
-      setError( null )
-      updateValues( name, value )
-    },
-    onBlur: ({ currentTarget:{ value } }) => {
-      if (!validator) return
-
-      const error = validator( value )
-
-      if (isError( error )) setError( typeof error === `boolean` ? `` : error )
-    },
-  }
-
-  useEffect( () => {
-    if (!isValuePromise) {
-      if (validator && isError( validator( fixedValue ) )) updateValues( name, null )
-      else updateValues( name, fixedValue )
-    } else fixedValue.then( val => {
-      if (validator && isError( validator( val ) )) updateValues( name, null )
-      else {
-        updateValues( name, val )
-        setValue( val )
-      }
-    } )
-  }, [] )
-
-  const content = (
-    <>
-      {label} {render({ ...properties })}
-      {error && <><br /><p>{error}</p></>}
-    </>
-  )
-
-  return label
-    ? <label className={label ? fullClassName : undefined}>{content}</label>
-    : content
-}
 
 export function ComplexInput({
   name,
@@ -113,6 +26,7 @@ export function ComplexInput({
   style,
   initialValue,
   stringify: userDefinedStringify,
+  meta,
 }:ComplexInputProps) {
   const ctx = useContext( FormContext )
 
@@ -139,19 +53,25 @@ export function ComplexInput({
     fieldsClassName: undefined,
     values: initialValues,
     updateValues: (name, value) => {
-      console.log( 4, name, value )
       setParts( parts => ({ ...parts, [ name ]:value }) )
     },
   }
 
 
   useEffect( () => {
-    ctx.updateValues?.( name, stringifiedParts )
+    ctx.updateValues?.( name, stringifiedParts, meta )
   }, [ stringifiedParts ] )
 
 
+  if (!name) {
+    console.error( `You have to pass "name" property to input` )
+    return null
+  }
 
-  if (wrongGroupNames) return <strong>Name property should pass "/[^a-z]/i" regexp test!</strong>
+  if (wrongGroupNames) {
+    console.error( `Name property should pass "/[^a-z]/i" regexp test!` )
+    return null
+  }
 
   return (
     <FormContext.Provider value={overridedContextValue}>
@@ -192,7 +112,7 @@ function getStringifier( initialParts, staticParts, defaultStringifier ) {
       string += (staticParts[ i ] || ``) + parts[ groupsnames[ i ]! ]
     }
 
-    if (staticParts.length > 1) string += staticParts[ staticParts.length - 1 ]
+    if (staticParts.length > groupsnames.length) string += staticParts[ staticParts.length - 1 ]
 
     return string
   })
@@ -200,13 +120,14 @@ function getStringifier( initialParts, staticParts, defaultStringifier ) {
 
 function usePreparedSubinputsData( inputs, initialValue, initialParts, staticParts ) {
   const subinputs = useMemo( () => {
+    const groupsnames = Object.keys( initialParts )
     const children:(string | ReactNode)[] = []
 
     for (let i = 0;  i < inputs.length;  i++) {
       children.push( staticParts[ i ] || ``, inputs[ i ]! )
     }
 
-    if (staticParts.length > 1) children.push( staticParts[ staticParts.length - 1 ]! )
+    if (staticParts.length > groupsnames.length) children.push( staticParts[ staticParts.length - 1 ]! )
 
     return children
   }, [ staticParts.join( `` ), inputs.join( `` ) ] )
@@ -221,7 +142,7 @@ function usePreparedSubinputsData( inputs, initialValue, initialParts, staticPar
       string += (staticParts[ i ] || ``).replace( /[$^*+()[\]\\|.?]/g, m => `\\${m}` ) + `(?<${groupsnames[ i ]}>.*?)`
     }
 
-    if (staticParts.length > 1) string += staticParts[ staticParts.length - 1 ]
+    if (staticParts.length > groupsnames.length) string += staticParts[ staticParts.length - 1 ]
 
     string += `$`
 

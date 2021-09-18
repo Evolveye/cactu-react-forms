@@ -8,6 +8,7 @@ export function ComplexFieldset({
   fieldsClassName,
   value = [],
   initialCount = value.length || 1,
+  label = undefined,
 }) {
   const ctx = useContext( FormContext )
   const [ fieldsValues, setFieldsValues ] = useState({})
@@ -18,7 +19,7 @@ export function ComplexFieldset({
     ...ctx,
     fieldsClassName,
     updateValues: (name, value, meta) => {
-      if (!meta?.fieldsetKey) return
+      if (!meta || typeof meta.fieldsetKey !== `number`) return
 
       setFieldsValues( currentValues => ({
         ...currentValues,
@@ -46,7 +47,7 @@ export function ComplexFieldset({
 
   useEffect( () => {
     ctx.updateValues?.( name, Object.values( fieldsValues ) )
-  }, [ btoa( JSON.stringify( fieldsValues ) ) ] )
+  }, [ JSON.stringify( fieldsValues ) ] )
 
   useEffect( () => {
     setFieldsValues( oldValues => {
@@ -61,6 +62,7 @@ export function ComplexFieldset({
 
   return (
     <fieldset className={fullClassName}>
+      {label && <legend>{label}</legend>}
       <FormContext.Provider value={overridedFormContextValue}>
         {fields}
       </FormContext.Provider>
