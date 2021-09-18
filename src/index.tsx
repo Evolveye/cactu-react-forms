@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import { FormContext, FormSubmitProps, InputValue, InputValues } from "./utils.js"
 
 
-const inputs: { [key:string]:JSX.Element } = {}
+const inputs: { [key:string]:React.ReactNode } = {}
 
 type FormProps = {
   children: React.ReactChildren,

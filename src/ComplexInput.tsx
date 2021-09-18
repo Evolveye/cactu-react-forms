@@ -151,7 +151,7 @@ export function ComplexInput({
 
 
 
-  if (wrongGroupNames) return `Name property should pass "/[^a-z]/i" regexp test!`
+  if (wrongGroupNames) return <strong>Name property should pass "/[^a-z]/i" regexp test!</strong>
 
   return (
     <FormContext.Provider value={overridedContextValue}>

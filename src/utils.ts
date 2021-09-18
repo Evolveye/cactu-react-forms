@@ -22,29 +22,29 @@ export type FormSubmitProps = {
   handler: (values:InputValues) => void,
 }
 
-export type InputProps = {
+export type InputProps<T=InputValue> = {
   name: string,
   children?: React.ReactChildren,
   style?: React.CSSProperties,
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
-  initialValue?: InputValue,
+  initialValue?: T,
   validator?: (value:InputValue) => boolean,
   placeholder?: string,
   label?: string | React.ReactChildren,
   emptyValue?: InputValue,
 }
 
-export type NativeInputProps = {
+export type NativeInputProps<T=unknown> = {
   name: string,
   placeholder?: string,
   autoComplete?: string,
-  defaultValue?: unknown,
+  defaultValue?: T,
   style?: React.CSSProperties,
   className?: string,
-  onInput: (e:React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
-  onBlur: (e:React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+  onInput: (eOrValue:React.FormEvent<HTMLInputElement | HTMLTextAreaElement> | unknown) => void,
+  onBlur: (eOrValue:React.FocusEvent<HTMLInputElement | HTMLTextAreaElement> | unknown) => void,
 }
 
 

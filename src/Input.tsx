@@ -47,7 +47,9 @@ export function Input({
     defaultValue: value,
     style,
     className: label ? undefined : fullClassName,
-    onInput: ({ currentTarget:{ value } }) => {
+    onInput: eOrValue => {
+      const value = eOrValue instanceof Event ? (eOrValue as unknown as React.FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
+
       if (validator) {
         const error = validator( value )
 
@@ -57,7 +59,9 @@ export function Input({
       setError( null )
       updateValues( name, value )
     },
-    onBlur: ({ currentTarget:{ value } }) => {
+    onBlur: eOrValue => {
+      const value = eOrValue instanceof Event ? (eOrValue as unknown as React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
+
       if (!validator) return
 
       const error = validator( value )
