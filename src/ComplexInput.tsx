@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useMemo, useState } from "react"
+import { Children, CSSProperties, ReactChildren, ReactNode, useContext, useEffect, useMemo, useState } from "react"
 import { classNames, FormContext, FormContextValue, InputProps, InputValue, InputValues, isError, NativeInputProps } from "./utils"
 
 
 type ComplexInputProps = {
   name: string,
-  children?: React.ReactChildren,
-  label?: string | React.ReactChildren,
-  style?: React.CSSProperties,
+  children?: ReactChildren,
+  label?: string | ReactChildren,
+  style?: CSSProperties,
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
@@ -165,12 +165,12 @@ export function ComplexInput({
 
 
 
-function getInputsAndPartsFromChildren( children:React.ReactNode | React.ReactNode[] ) {
+function getInputsAndPartsFromChildren( children:ReactNode | ReactNode[] ) {
   const initialParts:InputValues = {}
   const staticParts:string[] = []
-  const inputs:React.ReactNode[] = []
+  const inputs:ReactNode[] = []
 
-  React.Children.forEach( children, (c, i) => {
+  Children.forEach( children, (c, i) => {
     if (typeof c === `string`) return staticParts.push( c )
     else if (c == null || typeof c !== `object` || !(`props` in c)) return
     else if (i === 0) staticParts.push( `` )
@@ -200,7 +200,7 @@ function getStringifier( initialParts, staticParts, defaultStringifier ) {
 
 function usePreparedSubinputsData( inputs, initialValue, initialParts, staticParts ) {
   const subinputs = useMemo( () => {
-    const children:(string | React.ReactNode)[] = []
+    const children:(string | ReactNode)[] = []
 
     for (let i = 0;  i < inputs.length;  i++) {
       children.push( staticParts[ i ] || ``, inputs[ i ]! )

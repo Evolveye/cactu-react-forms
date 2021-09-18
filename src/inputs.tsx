@@ -1,7 +1,6 @@
-import React from "react"
-import { ComplexInput } from "./ComplexInput.js"
-import Form from "./index.js"
-import { Input } from "./Input.js"
+import { ComplexInput } from "./ComplexInput.jsx"
+import Form from "./index.jsx"
+import { Input } from "./Input.jsx"
 import { InputProps } from "./utils.js"
 
 const prepareComplexInputProps = props => ({ ...props, label:(props.label ?? props.children), children:null })

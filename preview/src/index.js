@@ -1,7 +1,7 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import './main.css'
-import ReactComponent from "typescript-react-component"
+import ReactComponent from "cactu-react-forms"
 
 export default function App() {
   return <ReactComponent />

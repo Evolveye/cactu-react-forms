@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import { FocusEvent, FormEvent, useContext, useEffect, useState } from "react"
 import { classNames, FormContext, InputProps, InputValue, isError, NativeInputProps } from "./utils"
 
 
@@ -48,7 +48,7 @@ export function Input({
     style,
     className: label ? undefined : fullClassName,
     onInput: eOrValue => {
-      const value = eOrValue instanceof Event ? (eOrValue as unknown as React.FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
+      const value = eOrValue instanceof Event ? (eOrValue as unknown as FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
 
       if (validator) {
         const error = validator( value )
@@ -60,7 +60,7 @@ export function Input({
       updateValues( name, value )
     },
     onBlur: eOrValue => {
-      const value = eOrValue instanceof Event ? (eOrValue as unknown as React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
+      const value = eOrValue instanceof Event ? (eOrValue as unknown as FocusEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value : eOrValue
 
       if (!validator) return
 

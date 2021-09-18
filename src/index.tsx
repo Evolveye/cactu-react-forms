@@ -1,11 +1,10 @@
-import React, { useState } from "react"
+import { MouseEvent, ReactChildren, ReactNode, useState } from "react"
 import { FormContext, FormSubmitProps, InputValue, InputValues } from "./utils.js"
 
-
-const inputs: { [key:string]:React.ReactNode } = {}
+const inputs: { [key:string]:ReactNode } = {}
 
 type FormProps = {
-  children: React.ReactChildren,
+  children: ReactChildren,
   className?: string,
   values?: InputValues,
   fieldsClassName?: string,
@@ -29,7 +28,7 @@ export default function Form({
     [ name ]: value,
   }) )
 
-  const submit = async(e:React.MouseEvent, handler:(values:InputValues) => void) => {
+  const submit = async(e:MouseEvent, handler:(values:InputValues) => void) => {
     e.preventDefault()
     handler?.( fieldsValues )
   }

@@ -1,5 +1,5 @@
-import React, { useState, useContext, useMemo, useEffect } from "react"
-import { classNames, FormContext } from "./utils"
+import { useState, useContext, useMemo, useEffect, cloneElement, isValidElement, Children, createElement } from "react"
+import { classNames, FormContext } from "./utils.js"
 
 export function ComplexFieldset({
   name,
@@ -33,14 +33,14 @@ export function ComplexFieldset({
 
   const fields = useMemo( () => Array.from( { length:fieldsCount }, (_, i) => {
     const fieldValues = value[ i ] ?? {}
-    const childrenArr = React.Children.toArray( children )
+    const childrenArr = Children.toArray( children )
     const copiedChildren = childrenArr.map( child => {
-      if (React.isValidElement( child )) return React.cloneElement( child, { meta:{ fieldsetKey:i }, value:fieldValues[ child.props.name ] } )
+      if (isValidElement( child )) return cloneElement( child, { meta:{ fieldsetKey:i }, value:fieldValues[ child.props.name ] } )
 
       return child
     } )
 
-    return childrenArr.length > 1 ? React.createElement( `fieldset`, { key:i }, copiedChildren ) : copiedChildren
+    return childrenArr.length > 1 ? createElement( `fieldset`, { key:i }, copiedChildren ) : copiedChildren
   } ), [ fieldsCount ] )
 
 

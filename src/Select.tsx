@@ -1,10 +1,10 @@
-import React, { useState, useContext, useEffect } from "react"
+import { useState, useContext, useEffect, ReactNode, createContext } from "react"
 import { classNames, FormContext } from "./utils"
 
 type SelectProps = {
   name: string,
-  children: React.ReactNode,
-  label?: React.ReactNode,
+  children: ReactNode,
+  label?: ReactNode,
   className?: string,
   fieldsClassName?: string,
   multiple?: boolean,
@@ -17,7 +17,7 @@ type SelectContext = {
   updateChecks: (checked:boolean, value:unknown) => void
 }
 
-const FormSelectContext = React.createContext<Partial<SelectContext>>( {} )
+const FormSelectContext = createContext<Partial<SelectContext>>( {} )
 
 export function Select({ name, children = [], className = undefined, fieldsClassName = undefined, multiple = false, label = undefined }:SelectProps) {
   const formCtx = useContext( FormContext )

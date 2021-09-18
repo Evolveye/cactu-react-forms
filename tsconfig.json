@@ -3,10 +3,11 @@
     "target": "ES2021",
     "declaration": true,
     "outDir": "./lib",
-    // "strict": true,
-
-
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "baseUrl": "./",
     "noEmit": false,
     "allowJs": true,
@@ -15,15 +16,22 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
+    "allowSyntheticDefaultImports": false,
+    "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo"
   },
-  "include": [ "src" ],
-  "exclude": [ "node_modules", "preview" ]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "preview"
+  ]
 }
