@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "preview": "cd preview && npm start"
+    "preview": "cd preview && cross-env BROWSER=none npm start"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
     "@types/react-dom": "^17.0.9",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-eye": "^1.1.0",
     "react": "^17.0.2",
