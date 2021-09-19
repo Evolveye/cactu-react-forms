@@ -1,7 +1,7 @@
 import { ComplexInput } from "./ComplexInput.js"
 import Form from "./Form.js"
 import { Input } from "./Input.js"
-import { InputProps } from "./utils.js"
+import { InputProps } from "./utils/utils.js"
 
 const prepareComplexInputProps = props => ({ ...props, label:(props.label ?? props.children), children:null })
 const buildValidator = (originalValidator, errorMessage, overridedValdiator) => text => {

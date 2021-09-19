@@ -1,5 +1,6 @@
 import { FocusEvent, FormEvent, useContext, useEffect, useState } from "react"
-import { classNames, FormContext, InputProps, InputValue, isError, NativeInputProps } from "./utils.js"
+import { FormContext, InputProps, NativeInputProps } from "./utils/utils.js"
+import useInputBaseData from "./input/useInputData.js"
 
 
 const isEvent = something => true
@@ -9,42 +10,14 @@ const isEvent = something => true
 
 
 export function Input({
-  name,
   render,
   children,
   style,
-  className,
-  errorClassName,
-  inheritClassNames = true,
   label = children,
   placeholder,
-  initialValue,
-  emptyValue,
-  validator,
-  meta,
+  ...inputBaseProps
 }:InputProps & { render: (props:NativeInputProps) => JSX.Element }) {
-  const ctx = useContext( FormContext )
-
-  const fixedValue = initialValue ?? ctx.values?.[ name ]
-  const isValuePromise = fixedValue instanceof Promise
-  const [ value, setValue ] = useState( isValuePromise ? null : fixedValue )
-  const [ error, setError ] = useState<null | string>( null )
-
-  const inheritedClassNames = inheritClassNames ? {
-    className: ctx.fieldsClassName || ``,
-    errorClassName: ctx.fieldsErrorClassName || ``,
-  } : {}
-
-  const updateValues = (name:string, value:InputValue) => {
-    ctx.updateValues?.( name, value ?? (emptyValue === undefined ? null : emptyValue), meta )
-  }
-
-  const fullClassName = classNames(
-    inheritedClassNames.className,
-    isError( error ) ? inheritedClassNames.errorClassName : undefined,
-    className,
-    isError( error ) ? errorClassName : undefined,
-  )
+  const inputData = useInputBaseData( inputBaseProps )
 
   const properties:NativeInputProps = {
     name,
@@ -54,9 +27,7 @@ export function Input({
     style,
     className: label ? undefined : fullClassName,
     onInput: eOrValue => {
-      const value = isEvent( eOrValue )
-        ? (eOrValue as unknown as FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value
-        : eOrValue
+      const value = extractValueFromEventOrReturnObj
 
       if (validator) {
         const error = validator( value )
@@ -69,7 +40,7 @@ export function Input({
     },
     onBlur: eOrValue => {
       const value = isEvent( eOrValue )
-        ? (eOrValue as unknown as FormEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value
+        ? (eOrValue as unknown as FocusEvent<HTMLInputElement | HTMLTextAreaElement>).currentTarget?.value
         : eOrValue
 
       if (!validator) return
@@ -79,19 +50,6 @@ export function Input({
       if (isError( error )) setError( typeof error === `boolean` ? `` : error )
     },
   }
-
-  useEffect( () => {
-    if (!isValuePromise) {
-      if (validator && isError( validator( fixedValue ) )) updateValues( name, null )
-      else updateValues( name, fixedValue )
-    } else fixedValue.then( val => {
-      if (validator && isError( validator( val ) )) updateValues( name, null )
-      else {
-        updateValues( name, val )
-        setValue( val )
-      }
-    } )
-  }, [] )
 
   const content = (
     <>

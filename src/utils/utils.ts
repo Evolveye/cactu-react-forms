@@ -1,14 +1,13 @@
 import * as React from "react"
+import { InputValue, InputValues } from "../input/InputValue"
 
 
-export const classNames = (...classNames) => classNames.filter( Boolean ).join( ` ` ) || undefined
-export const isError = err => err !== true && (err === false || err)
 
 
-export type InputValue = unknown
-export type InputValues = { [key:string]: InputValue }
+
+
 export type FormContextValue = {
-  updateValues: (name:string, value:InputValue, meta?:{ [key:string]: InputValue }) => void,
+  updateValues: (name:string, value:InputValue | null, meta?:{ [key:string]: InputValue }) => void,
   submit: (e:React.MouseEvent, handler:((values:InputValues) => void)) => void,
   fieldsErrorClassName: string,
   fieldsClassName?: string,
@@ -16,20 +15,15 @@ export type FormContextValue = {
   values: InputValues,
 }
 
-export type FormSubmitProps = {
-  children?: React.ReactChildren,
-  className?: string,
-  handler: (values:InputValues) => void,
-}
 
-export type InputProps<T=InputValue> = {
+export type InputProps<TValue=InputValue> = {
   name: string,
   children?: React.ReactChildren,
   style?: React.CSSProperties,
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
-  initialValue?: T,
+  initialValue?: TValue,
   validator?: (value:InputValue) => boolean,
   placeholder?: string,
   label?: string | React.ReactChildren,

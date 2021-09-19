@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect, cloneElement, isValidElement, Children, createElement } from "react"
-import { classNames, FormContext } from "./utils.js"
+import { classNames, FormContext } from "./utils/utils.js"
 
 export function ComplexFieldset({
   name,

@@ -1,5 +1,5 @@
 import { Children, CSSProperties, ReactChildren, ReactNode, useContext, useEffect, useMemo, useState } from "react"
-import { classNames, FormContext, FormContextValue, InputProps, InputValue, InputValues, isError, NativeInputProps } from "./utils.js"
+import { classNames, FormContext, FormContextValue, InputValue, InputValues } from "./utils/utils.js"
 
 
 type ComplexInputProps = {
@@ -22,6 +22,7 @@ export function ComplexInput({
   children,
   label,
   className,
+  errorClassName,
   inheritClassNames = true,
   style,
   initialValue,
