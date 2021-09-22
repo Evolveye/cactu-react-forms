@@ -28,7 +28,6 @@ export function Input<TValue=FormElementPrimitiveValue>({
     name,
     placeholder,
     autoComplete,
-    defaultValue: initialPrimitiveValue,
     style,
     className: label ? undefined : className,
     onInput: eOrValue => {
@@ -47,6 +46,8 @@ export function Input<TValue=FormElementPrimitiveValue>({
       if (meybeError) setError( meybeError )
     },
   }
+
+  if (initialPrimitiveValue !== undefined) properties.defaultValue = initialPrimitiveValue
 
   if (!render) {
     console.error( `You have to pass function children or "render" property to input` )

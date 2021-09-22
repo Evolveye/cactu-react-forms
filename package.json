@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && tsc-alias",
     "preview": "cd preview && cross-env BROWSER=none npm start",
-    "clean": "rm .tsbuildinfo && rm -rf lib"
+    "clean": "rm .tsbuildinfo && rm -rf lib",
+    "build_preview": "tsc && tsc-alias && cd preview && cross-env BROWSER=none npm start"
   },
   "repository": {
     "type": "git",

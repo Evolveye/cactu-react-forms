@@ -10,7 +10,7 @@ export default function App() {
       <Text name="login">Login</Text>
       <Password name="password">Password</Password>
       <Email name="email">Email</Email>
-      <Link name="link">Link</Link>
+      <Link name="link" initialValue={new Promise( r => setTimeout( () => r( `http://localhost:3000` ), 2000 ) )}>Link</Link>
       <Time name="time">Time</Time>
 
       <Select multiple name="select">

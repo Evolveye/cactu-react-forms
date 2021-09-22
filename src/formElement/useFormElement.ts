@@ -16,9 +16,9 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
 }:FormElementProps<TValue>) {
   const ctx = useContext( FormContext )
 
-  const fixedValue = (initialValue ?? ctx.values?.[ name ] ?? null) as TValue | undefined
+  const fixedValue = (initialValue ?? ctx.values?.[ name ] ?? undefined) as TValue | undefined
   const isValuePromise = fixedValue instanceof Promise
-  const [ value, setValue ] = useState( isValuePromise ? null : fixedValue )
+  const [ value, setValue ] = useState( isValuePromise ? undefined : fixedValue )
   const [ error, setError ] = useState<string | null>( null )
   const inheritedClassNames = inheritClassNames ? {
     className: ctx.fieldsClassName,
@@ -63,7 +63,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     name,
     className: fullClassName,
     value,
-    initialPrimitiveValue: fixedValue,
+    initialPrimitiveValue: value,
     error,
     showPlaceholder: ctx.showPlaceholder ?? false,
     setError,
