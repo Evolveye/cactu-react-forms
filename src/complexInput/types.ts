@@ -1,6 +1,15 @@
-import { FormElementValue } from "src/formElement/types.js"
-import { InputProps } from "src/input/types.js"
+import { CSSProperties, ReactNode } from "react"
+import { FormElementPrimitiveValue, FormElementProps, FormElementValue } from "src/formElement/types.js"
 
-export type ComplexInputProps = InputProps & {
+
+
+export type WrappedComplexInputProps<TValue=FormElementPrimitiveValue> = FormElementProps<TValue> & {
+  label?: ReactNode,
+  children?: ReactNode,
+  style?: CSSProperties,
+}
+
+export type ComplexInputProps<TValue=FormElementPrimitiveValue> = WrappedComplexInputProps<TValue> & {
   stringify?: (value:FormElementValue) => string,
+  children?: ReactNode,
 }

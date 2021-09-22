@@ -1,11 +1,17 @@
 import Form from "src/Form.js"
 import { Number } from "src/input/inputs.js"
 import ComplexInput from "./ComplexInput.js"
+import { ComplexInputProps, WrappedComplexInputProps } from "./types.js"
 
-const prepareComplexInputProps = props => ({ ...props, label:(props.label ?? props.children), children:null })
+
+
+const prepareComplexInputProps = (props:WrappedComplexInputProps):ComplexInputProps =>
+  ({ ...props, label:(props.label ?? props.children), children:undefined })
+
+
 
 Form.inputs.Phone = Phone
-export function Phone( props ) {
+export function Phone( props:WrappedComplexInputProps ) {
   return (
     <ComplexInput {...prepareComplexInputProps( props )}>
       +
@@ -22,7 +28,7 @@ export function Phone( props ) {
 
 Form.inputs.Time = Time
 // Form.inputs.Text.canBeComplex = true
-export function Time( props ) {
+export function Time( props:WrappedComplexInputProps ) {
   return (
     <ComplexInput {...prepareComplexInputProps( props )}>
       <Number name="hours" min={0} max={23} emptyValue="--" />
@@ -33,7 +39,7 @@ export function Time( props ) {
 }
 
 Form.inputs.TimeRange = TimeRange
-export function TimeRange( props ) {
+export function TimeRange( props:WrappedComplexInputProps ) {
   return (
     <ComplexInput {...prepareComplexInputProps({ ...props, style:{ display:`flex` } })}>
       <Time name="from" />
