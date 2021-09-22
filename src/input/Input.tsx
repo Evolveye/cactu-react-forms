@@ -48,11 +48,6 @@ export function Input<TValue=FormElementPrimitiveValue>({
     },
   }
 
-  if (!name) {
-    console.error( `You have to pass "name" property to input` )
-    return null
-  }
-
   if (!render) {
     console.error( `You have to pass function children or "render" property to input` )
     return null

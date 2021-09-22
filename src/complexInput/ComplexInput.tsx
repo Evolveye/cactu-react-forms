@@ -47,10 +47,6 @@ export default function ComplexInput({
   }, [ stringifiedParts ] )
 
 
-  if (!name) {
-    console.error( `You have to pass "name" property to input` )
-    return null
-  }
 
   if (wrongGroupNames) {
     console.error( `Name property should pass "/[^a-z]/i" regexp test!` )

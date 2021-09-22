@@ -58,6 +58,8 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     } )
   }, [] )
 
+  if (!name) console.error( `You have to pass "name" property to form element! Your field name will be "undefined"!` )
+
   return {
     name,
     classname: fullClassName,

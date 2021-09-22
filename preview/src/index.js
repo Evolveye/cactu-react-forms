@@ -13,8 +13,10 @@ export default function App() {
       <Link name="link">Link</Link>
       <Time name="time">Time</Time>
 
-      <Select multiple>
+      <Select multiple name="select">
         <SelectItem>1</SelectItem>
+        <SelectItem value={22}>2</SelectItem>
+        <SelectItem value="33">3</SelectItem>
       </Select>
 
       {/* <ComplexFieldset name="hours" className="is-complex" label="Hours">
