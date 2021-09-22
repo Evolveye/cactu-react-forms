@@ -1,4 +1,4 @@
-import { createContext, MouseEvent, ReactChildren, ReactNode, useState } from "react"
+import { createContext, MouseEvent, ReactChildren, ReactNode, Ref, useState } from "react"
 import { FormElementsValues } from "./formElement/types"
 
 
@@ -14,6 +14,7 @@ type FormProps = {
   fieldsClassName?: string,
   fieldsErrorClassName?: string,
   placeholders?: boolean,
+  ref?:Ref<HTMLFormElement>
 }
 
 type FormSubmitProps = {
@@ -41,6 +42,7 @@ export default function Form({
   fieldsErrorClassName,
   values = {},
   placeholders = false,
+  ref,
 }:FormProps) {
   const [ fieldsValues, setValues ] = useState<FormElementsValues<unknown>>({})
 
@@ -55,7 +57,7 @@ export default function Form({
   }
 
   return (
-    <form className={className}>
+    <form className={className} ref={ref}>
       <FormContext.Provider value={{ updateValues, submit, fieldsClassName, fieldsErrorClassName, showPlaceholder:placeholders, values }}>
         {children}
       </FormContext.Provider>

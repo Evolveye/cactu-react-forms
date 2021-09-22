@@ -1,5 +1,5 @@
 import Form from "src/Form.js"
-import { Validator } from "src/formElement/types.js"
+import { FormElementPrimitiveValue, Validator } from "src/formElement/types.js"
 import { Input } from "./Input.js"
 import { InputAutocomplete, WrappedInputProps } from "./types.js"
 
@@ -68,7 +68,7 @@ export function Link({ errorMessage = `It's not an url!`, ...restProps }:Wrapped
 Form.inputs.Textarea = Textarea
 export function Textarea( props ) {
   return (
-    <Input {...props}>
+    <Input<FormElementPrimitiveValue, HTMLTextAreaElement> {...props}>
       {
         p => (
           <>

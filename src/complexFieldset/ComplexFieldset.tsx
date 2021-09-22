@@ -12,6 +12,7 @@ export function ComplexFieldset({
   fieldsErrorClassName,
   initialCount = (Array.isArray( initialValue ) && initialValue.length) ? initialValue.length : 1,
   label = undefined,
+  ref,
   ...formElementProps
 }:ComplexFieldsetProps) {
   const { name, className, value, updateValues } = useFormElement({ ...formElementProps, initialValue })
@@ -66,7 +67,7 @@ export function ComplexFieldset({
 
 
   return (
-    <fieldset className={className}>
+    <fieldset className={className} ref={ref}>
       {label && <legend>{label}</legend>}
       <FormContext.Provider value={overridedFormContextValue}>
         {fields}

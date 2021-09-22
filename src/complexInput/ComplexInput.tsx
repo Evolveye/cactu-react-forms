@@ -11,6 +11,7 @@ export default function ComplexInput({
   label,
   style,
   stringify: userDefinedStringify,
+  ref,
   ...formElementProps
 }:ComplexInputProps) {
   const { name, className, initialPrimitiveValue, showPlaceholder, updateValues } = useFormElement( formElementProps )
@@ -55,7 +56,7 @@ export default function ComplexInput({
 
   return (
     <FormContext.Provider value={overridedContextValue}>
-      <fieldset className={className} style={style}>
+      <fieldset className={className} style={style} ref={ref}>
         {label && <legend>{label}</legend>}
         {subinputs}
       </fieldset>

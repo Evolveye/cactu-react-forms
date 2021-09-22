@@ -3,7 +3,7 @@ import { FormElementPrimitiveValue, FormElementProps, FormElementValue } from "s
 
 
 
-export type WrappedComplexInputProps<TValue=FormElementPrimitiveValue> = FormElementProps<TValue> & {
+export type WrappedComplexInputProps<TValue=FormElementPrimitiveValue> = FormElementProps<TValue, HTMLFieldSetElement> & {
   label?: ReactNode,
   children?: ReactNode,
   style?: CSSProperties,

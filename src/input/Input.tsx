@@ -4,15 +4,16 @@ import { FormElementPrimitiveValue } from "src/formElement/types.js"
 
 
 
-export function Input<TValue=FormElementPrimitiveValue>({
+export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
   children: render,
   // render = children,
   style,
   label,
   placeholder,
+  ref,
   autoComplete = InputAutocomplete.OFF,
   ...inputBaseProps
-}:InputProps<TValue>) {
+}:InputProps<TValue, TRef>) {
   const {
     name,
     initialPrimitiveValue,
@@ -24,12 +25,13 @@ export function Input<TValue=FormElementPrimitiveValue>({
     extractValueFromEventOrReturnObj,
   } = useFormElement( inputBaseProps )
 
-  const properties:NativeInputProps<TValue> = {
+  const properties:NativeInputProps<TValue, TRef> = {
     name,
     placeholder,
     autoComplete,
     style,
     className: label ? undefined : className,
+    ref,
     onInput: eOrValue => {
       const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
       const meybeError = validator( value )

@@ -1,4 +1,4 @@
-import { CSSProperties, FocusEvent, FormEvent, ReactNode } from "react"
+import { CSSProperties, FocusEvent, FormEvent, ReactNode, Ref } from "react"
 import { FormElementPrimitiveValue, FormElementProps } from "src/formElement/types.js"
 
 
@@ -59,18 +59,19 @@ export enum InputAutocomplete {
   PHOTO = `photo`,
 }
 
-export type NativeInputProps<TValue=FormElementPrimitiveValue> = {
+export type NativeInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement> = {
   name: string,
   placeholder?: string,
   autoComplete?: string,
   defaultValue?: TValue,
   style?: CSSProperties,
   className?: string,
+  ref?: Ref<TRef>
   onInput: (eOrValue:FormEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
   onBlur: (eOrValue:FocusEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
 }
 
-export type WrappedInputProps<TValue=FormElementPrimitiveValue> = FormElementProps<TValue> & {
+export type WrappedInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement> = FormElementProps<TValue, TRef> & {
   label?: ReactNode,
   children?: ReactNode,
   style?: CSSProperties,
@@ -78,8 +79,8 @@ export type WrappedInputProps<TValue=FormElementPrimitiveValue> = FormElementPro
   autoComplete?: InputAutocomplete,
 }
 
-export type InputProps<TValue=FormElementPrimitiveValue> = WrappedInputProps<TValue> & {
-  children?: ((props:NativeInputProps<TValue>) => JSX.Element) | null,
+export type InputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement> = WrappedInputProps<TValue, TRef> & {
+  children?: ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
   // render?: ((props:NativeInputProps<TValue>) => JSX.Element) | null
 }
 
