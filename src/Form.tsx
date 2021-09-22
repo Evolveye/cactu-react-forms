@@ -3,6 +3,8 @@ import { FormElementsValues } from "./formElement/types"
 
 
 
+export const createClasName = (...classNames:(string | null | undefined)[]) => classNames.filter( Boolean ).join( ` ` ) || undefined
+export const isError = err => err !== true && (err === false || err)
 const inputs: { [key:string]:ReactNode } = {}
 
 type FormProps = {

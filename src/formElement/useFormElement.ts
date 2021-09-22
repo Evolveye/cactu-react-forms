@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { FormContext } from "src/Form.js"
-import { createClasName } from "../utils/helpers.js"
+import { createClasName, FormContext } from "src/Form.js"
 import { FormElementPrimitiveValue, FormElementProps } from "./types.js"
 
 

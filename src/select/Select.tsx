@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect, createContext } from "react"
-import { FormContext } from "src/Form.js"
+import { createClasName, FormContext } from "src/Form.js"
 import useFormElement from "src/formElement/useFormElement.js"
-import { createClasName } from "src/utils/helpers.js"
 import { SelectContext, SelectProps } from "./types.js"
 
 
