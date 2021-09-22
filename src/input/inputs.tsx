@@ -3,6 +3,8 @@ import { Validator } from "src/formElement/types.js"
 import { Input } from "./Input.js"
 import { WrappedInputProps } from "./types.js"
 
+
+
 const buildValidator = (originalValidator:Validator | undefined, errorMessage:string, overridedValdiator:(value)=>boolean) => (text:string) => {
   if (!overridedValdiator( text )) return errorMessage
 
