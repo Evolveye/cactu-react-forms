@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import './main.css'
-import Form, { Email, Link, Password, Submit, Text, Number, Time, ComplexFieldset } from "cactu-react-forms"
+import Form, { Email, Link, Password, Submit, Text, Number, Time, Select, SelectItem } from "cactu-react-forms"
 
 export default function App() {
   return (
@@ -13,9 +13,13 @@ export default function App() {
       <Link name="link">Link</Link>
       <Time name="time">Time</Time>
 
-      <ComplexFieldset name="hours" className="is-complex" label="Hours">
+      <Select multiple>
+        <SelectItem>1</SelectItem>
+      </Select>
+
+      {/* <ComplexFieldset name="hours" className="is-complex" label="Hours">
         <Time name="from" />
-      </ComplexFieldset>
+      </ComplexFieldset> */}
 
       <Submit handler={data => console.log( data )}>Submit</Submit>
     </Form>

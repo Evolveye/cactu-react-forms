@@ -1,12 +1,12 @@
 import { Children, ReactNode, useEffect, useMemo, useState } from "react"
-import { FormContext, FormContextValue } from "src/Form"
-import { FormElementsValues } from "src/formElement/types"
-import useFormElement from "src/formElement/useFormElement"
-import { ComplexInputProps } from "./types"
+import { FormContext, FormContextValue } from "src/Form.js"
+import { FormElementsValues } from "src/formElement/types.js"
+import useFormElement from "src/formElement/useFormElement.js"
+import { ComplexInputProps } from "./types.js"
 
 
 
-export function ComplexInput({
+export default function ComplexInput({
   children,
   label,
   style,
@@ -17,7 +17,7 @@ export function ComplexInput({
   const { initialParts, staticParts, inputs } = getInputsAndPartsFromChildren( children )
   const finalStringify = getStringifier( initialParts, staticParts, userDefinedStringify )
 
-  const [ parts, setParts ] = useState( initialParts )
+  const [ parts, setParts ] = useState<{ [key:string]: unknown }>( initialParts )
   const { subinputs, initialValues } = usePreparedSubinputsData(
     inputs,
     initialPrimitiveValue,
@@ -87,7 +87,7 @@ function getInputsAndPartsFromChildren( children:ReactNode | ReactNode[] ) {
   return { initialParts, staticParts, inputs }
 }
 
-function getStringifier( initialParts, staticParts, defaultStringifier ) {
+function getStringifier( initialParts, staticParts, defaultStringifier ): (parts) => string {
   return defaultStringifier ?? (parts => {
     const groupsnames = Object.keys( initialParts )
     let string = ``

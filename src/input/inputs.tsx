@@ -1,4 +1,4 @@
-import Form from "src"
+import Form from "src/Form.js"
 import { Validator } from "src/formElement/types.js"
 import { Input } from "./Input.js"
 import { WrappedInputProps } from "./types.js"

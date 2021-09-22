@@ -1,5 +1,5 @@
 import { createContext, MouseEvent, ReactChildren, ReactNode, useState } from "react"
-import { FormElementsValues, FormElementValue } from "./formElement/types"
+import { FormElementsValues } from "./formElement/types"
 
 
 
@@ -21,8 +21,8 @@ type FormSubmitProps = {
 }
 
 export type FormContextValue = {
-  updateValues: (name:string, value:FormElementValue | null, meta?:{ [key:string]: unknown }) => void,
-  submit: (e:MouseEvent, handler:((values:FormElementsValues) => void)) => void,
+  updateValues: (name:string, value:unknown, meta?:{ [key:string]: unknown }) => void,
+  submit: (e:MouseEvent, handler:((values:FormElementsValues<unknown>) => void)) => void,
   fieldsErrorClassName: string,
   fieldsClassName?: string,
   showPlaceholder: boolean,
@@ -40,14 +40,14 @@ export default function Form({
   values = {},
   placeholders = false,
 }:FormProps) {
-  const [ fieldsValues, setValues ] = useState<FormElementsValues>({})
+  const [ fieldsValues, setValues ] = useState<FormElementsValues<unknown>>({})
 
-  const updateValues = (name:string, value:FormElementValue) => setValues( currentValues => ({
+  const updateValues = (name:string, value:unknown) => setValues( currentValues => ({
     ...currentValues,
     [ name ]: value,
   }) )
 
-  const submit = async(e:MouseEvent, handler:(values:FormElementsValues) => void) => {
+  const submit = async(e:MouseEvent, handler:(values:FormElementsValues<unknown>) => void) => {
     e.preventDefault()
     handler?.( fieldsValues )
   }

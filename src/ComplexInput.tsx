@@ -1,5 +1,7 @@
 import { Children, CSSProperties, ReactChildren, ReactNode, useContext, useEffect, useMemo, useState } from "react"
-import { classNames, FormContext, FormContextValue, InputValue, InputValues } from "./utils/utils.js"
+import { FormElementsValues, FormElementValue } from "./formElement/types.js"
+import { createClasName } from "./utils/helpers.js"
+import { FormContext, FormContextValue } from "./utils/utils.js"
 
 
 type ComplexInputProps = {
@@ -10,9 +12,9 @@ type ComplexInputProps = {
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
-  initialValue?: InputValue,
+  initialValue?: FormElementValue,
   validator?: (value:string) => boolean,
-  stringify?: (value:InputValue) => string,
+  stringify?: (value:FormElementsValues) => string,
   meta?: { [key:string]: string | number }
 }
 
@@ -22,7 +24,7 @@ export function ComplexInput({
   children,
   label,
   className,
-  errorClassName,
+  // errorClassName,
   inheritClassNames = true,
   style,
   initialValue,
@@ -31,7 +33,7 @@ export function ComplexInput({
 }:ComplexInputProps) {
   const ctx = useContext( FormContext )
 
-  const fullClassName = classNames( inheritClassNames ? ctx.fieldsClassName : null, className )
+  const fullClassName = createClasName( inheritClassNames ? ctx.fieldsClassName : null, className )
   const { initialParts, staticParts, inputs } = getInputsAndPartsFromChildren( children )
   const finalStringify = getStringifier( initialParts, staticParts, userDefinedStringify )
 
@@ -87,7 +89,7 @@ export function ComplexInput({
 
 
 function getInputsAndPartsFromChildren( children:ReactNode | ReactNode[] ) {
-  const initialParts:InputValues = {}
+  const initialParts:FormElementsValues = {}
   const staticParts:string[] = []
   const inputs:ReactNode[] = []
 

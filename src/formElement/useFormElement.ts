@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
+import { FormContext } from "src/Form.js"
 import { createClasName } from "../utils/helpers.js"
-import { FormElementPrimitiveValue, FormElementProps, FormElementValue } from "./types.js"
-import { FormContext } from "../utils/utils.js"
+import { FormElementPrimitiveValue, FormElementProps } from "./types.js"
 
 
 
@@ -33,7 +33,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     error ? errorClassName : undefined,
   )
 
-  const updateValues = (name:string, value:FormElementValue<TValue> | null) => {
+  const updateValues = (name:string, value:TValue | null) => {
     ctx.updateValues?.( name, value ?? (emptyValue === undefined ? null : emptyValue), meta )
   }
 

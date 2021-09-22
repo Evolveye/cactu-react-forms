@@ -1,5 +1,5 @@
 import { CSSProperties, FocusEvent, FormEvent, ReactNode } from "react"
-import { FormElementPrimitiveValue, FormElementProps } from "src/formElement/types"
+import { FormElementPrimitiveValue, FormElementProps } from "src/formElement/types.js"
 
 
 

@@ -1,6 +1,6 @@
-import Form from "src"
-import { Number } from "src/input/inputs"
-import { ComplexInput } from "./ComplexInput"
+import Form from "src/Form.js"
+import { Number } from "src/input/inputs.js"
+import ComplexInput from "./ComplexInput.js"
 
 const prepareComplexInputProps = props => ({ ...props, label:(props.label ?? props.children), children:null })
 

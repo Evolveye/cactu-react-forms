@@ -1,5 +1,5 @@
 import * as React from "react"
-import { InputValue, InputValues } from "../input/InputValue"
+import { FormElementValue, FormElementsValues } from "src/formElement/types"
 
 
 
@@ -7,16 +7,16 @@ import { InputValue, InputValues } from "../input/InputValue"
 
 
 export type FormContextValue = {
-  updateValues: (name:string, value:InputValue | null, meta?:{ [key:string]: InputValue }) => void,
-  submit: (e:React.MouseEvent, handler:((values:InputValues) => void)) => void,
+  updateValues: (name:string, value:FormElementValue | null, meta?:{ [key:string]: FormElementValue }) => void,
+  submit: (e:React.MouseEvent, handler:((values:FormElementsValues) => void)) => void,
   fieldsErrorClassName: string,
   fieldsClassName?: string,
   showPlaceholder: boolean,
-  values: InputValues,
+  values: FormElementsValues,
 }
 
 
-export type InputProps<TValue=InputValue> = {
+export type InputProps<TValue=FormElementValue> = {
   name: string,
   children?: React.ReactChildren,
   style?: React.CSSProperties,
@@ -24,10 +24,10 @@ export type InputProps<TValue=InputValue> = {
   errorClassName?: string,
   inheritClassNames?: boolean,
   initialValue?: TValue,
-  validator?: (value:InputValue) => boolean,
+  validator?: (value:FormElementValue) => boolean,
   placeholder?: string,
   label?: string | React.ReactChildren,
-  emptyValue?: InputValue,
+  emptyValue?: FormElementValue,
   meta?: { [key:string]: string | number }
 }
 
