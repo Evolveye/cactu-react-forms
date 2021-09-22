@@ -12,7 +12,7 @@ const FormSelectContext = createContext<Partial<SelectContext>>( {} )
 
 Select.Select = Select
 export function Select({ children, fieldsClassName, multiple = false, label, ...formElementProps }:SelectProps) {
-  const { name, classname, updateValues } = useFormElement( formElementProps )
+  const { name, className, updateValues } = useFormElement( formElementProps )
   const [ checkedValues, setCheckedValues ] = useState<unknown[]>([])
 
   const overridedFormContextValue = {
@@ -53,7 +53,7 @@ export function Select({ children, fieldsClassName, multiple = false, label, ...
 
   return (
     <FormContext.Provider value={overridedFormContextValue}>
-      <fieldset className={classname}>
+      <fieldset className={className}>
         {label && <legend>{label}</legend>}
 
         <FormSelectContext.Provider value={selectContextValue}>

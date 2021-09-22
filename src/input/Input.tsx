@@ -16,7 +16,7 @@ export function Input<TValue=FormElementPrimitiveValue>({
   const {
     name,
     initialPrimitiveValue,
-    classname,
+    className,
     error,
     setError,
     validator,
@@ -30,7 +30,7 @@ export function Input<TValue=FormElementPrimitiveValue>({
     autoComplete,
     defaultValue: initialPrimitiveValue,
     style,
-    className: label ? undefined : classname,
+    className: label ? undefined : className,
     onInput: eOrValue => {
       const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
       const meybeError = validator( value )
@@ -61,6 +61,6 @@ export function Input<TValue=FormElementPrimitiveValue>({
   )
 
   return label
-    ? <label className={label ? classname : undefined}>{content}</label>
+    ? <label className={label ? className : undefined}>{content}</label>
     : content
 }

@@ -62,7 +62,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
 
   return {
     name,
-    classname: fullClassName,
+    className: fullClassName,
     value,
     initialPrimitiveValue: fixedValue,
     error,
