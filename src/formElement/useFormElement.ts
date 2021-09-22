@@ -66,7 +66,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     value,
     initialPrimitiveValue: fixedValue,
     error,
-    showPlaceholder: ctx.showPlaceholder,
+    showPlaceholder: ctx.showPlaceholder ?? false,
     setError,
     validator,
     updateValues,

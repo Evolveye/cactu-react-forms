@@ -20,8 +20,6 @@ type FormSubmitProps = {
   handler: (values:FormElementsValues) => void,
 }
 
-
-
 export type FormContextValue = {
   updateValues: (name:string, value:unknown, meta?:{ [key:string]: unknown }) => void,
   submit: (e:MouseEvent, handler:((values:FormElementsValues<unknown>) => void)) => void,
