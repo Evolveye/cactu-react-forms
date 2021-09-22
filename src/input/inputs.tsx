@@ -1,7 +1,7 @@
 import Form from "src/Form.js"
 import { Validator } from "src/formElement/types.js"
 import { Input } from "./Input.js"
-import { WrappedInputProps } from "./types.js"
+import { InputAutocomplete, WrappedInputProps } from "./types.js"
 
 
 
@@ -27,12 +27,6 @@ export function Text( props:WrappedInputProps ) {
   return <Input {...props} children= {p => <input {...p} type="text" />} />
 }
 
-Form.inputs.Password = Password
-// Form.inputs.Password.canBeComplex = true
-export function Password( props:WrappedInputProps ) {
-  return <Input {...props} children={p => <input {...p} type="password" />} />
-}
-
 Form.inputs.Number = Number
 // Form.inputs.Number.canBeComplex = true
 export function Number({ min, max, errorMessage = `It's not a number!`, ...restProps }:WrappedInputProps & { min:number, max:number, errorMessage?:string }) {
@@ -45,13 +39,19 @@ export function Number({ min, max, errorMessage = `It's not a number!`, ...restP
   )
 }
 
+Form.inputs.Password = Password
+// Form.inputs.Password.canBeComplex = true
+export function Password( props:WrappedInputProps ) {
+  return <Input autoComplete={InputAutocomplete.CURRENT_PASSWORD} {...props} children={p => <input {...p} type="password" />} />
+}
+
 Form.inputs.Email = Email
 // Form.inputs.Text.canBeComplex = true
 export function Email({ errorMessage = `It's not an email!`, ...restProps }:WrappedInputProps & { errorMessage?:string }) {
   const validator = buildValidator( restProps.validator, errorMessage, text => /\w+@\w+\.\w+/.test( text ) )
 
   return (
-    <Input {...restProps} validator={validator}>
+    <Input autoComplete={InputAutocomplete.EMAIL} {...restProps} validator={validator}>
       {p => <input {...p} type="email" />}
     </Input>
   )
@@ -62,7 +62,7 @@ Form.inputs.Link = Link
 export function Link({ errorMessage = `It's not an url!`, ...restProps }:WrappedInputProps & { errorMessage?:string }) {
   const validator = buildValidator( restProps.validator, errorMessage, text => /^https?:\/\/\S+/.test( text ) )
 
-  return <Text {...restProps} validator={validator} />
+  return <Text autoComplete={InputAutocomplete.URL} {...restProps} validator={validator} />
 }
 
 Form.inputs.Textarea = Textarea
