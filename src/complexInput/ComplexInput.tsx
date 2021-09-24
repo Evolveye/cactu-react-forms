@@ -1,6 +1,5 @@
 import { Children, ReactNode, useEffect, useMemo, useState } from "react"
 import { FormContext, FormContextValue } from "src/Form.js"
-import { FormElementsValues } from "src/formElement/types.js"
 import useFormElement from "src/formElement/useFormElement.js"
 import { ComplexInputProps } from "./types.js"
 

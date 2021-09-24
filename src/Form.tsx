@@ -5,7 +5,6 @@ import { FormElementMeta, FormElementsValues } from "./formElement/types"
 
 export const createClasName = (...classNames:(string | null | undefined)[]) => classNames.filter( Boolean ).join( ` ` ) || undefined
 export const isError = err => err !== true && (err === false || err)
-const inputs: { [key:string]:ReactNode } = {}
 
 type FormValuesUpdater = (meta:FormElementMeta<unknown>) => void
 type FormValuesGetter = () => FormElementsValues<unknown>
@@ -39,8 +38,7 @@ export type FormContextValue = {
 
 export const FormContext = createContext<Partial<FormContextValue>>({})
 
-Form.inputs = inputs
-export default function Form({
+export const Form:(properties:FormProps) => JSX.Element = ({
   children,
   className,
   fieldsClassName,
@@ -49,7 +47,7 @@ export default function Form({
   placeholders = false,
   defaultOptional = false,
   ref,
-}:FormProps) {
+}) => {
   const [ fieldsValues, setValues ] = useState<FormElementsValues<unknown>>({})
 
   const updateValues:FormValuesUpdater = meta => setValues( currentValues => ({
@@ -95,3 +93,5 @@ export function Submit({ children, className, fullData = false, handler }:FormSu
 
   return <button type="submit" className={className} onClick={submit} children={children} />
 }
+
+export default Form

@@ -9,7 +9,6 @@ const FormSelectContext = createContext<Partial<SelectContext>>( {} )
 
 
 
-Select.Select = Select
 export function Select({ children, fieldsClassName, multiple = false, label, ...formElementProps }:SelectProps) {
   const { name, className, updateValues } = useFormElement( formElementProps )
   const [ checkedValues, setCheckedValues ] = useState<unknown[]>([])
@@ -64,7 +63,6 @@ export function Select({ children, fieldsClassName, multiple = false, label, ...
   )
 }
 
-Select.Item = SelectItem
 export function SelectItem({ children, value = children, checked = false, className = null }) {
   const formCtx = useContext( FormContext )
   const selectCtx = useContext( FormSelectContext )
