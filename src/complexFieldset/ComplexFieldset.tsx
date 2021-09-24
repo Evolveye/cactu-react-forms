@@ -22,16 +22,14 @@ export function ComplexFieldset({
   const overridedFormContextValue:Partial<FormContextValue> = {
     fieldsClassName,
     fieldsErrorClassName,
-    updateValues: (name, value, meta) => {
-      if (!meta || typeof meta.fieldsetKey !== `number`) return
-
-      const key = meta.fieldsetKey as number
+    updateValues: ({ name, value, fieldsetKey }) => {
+      if (typeof fieldsetKey !== `number`) return
 
       setFieldsValues( currentValues => ({
         ...currentValues,
 
-        [ key ]: {
-          ...currentValues[ key ],
+        [ fieldsetKey ]: {
+          ...currentValues[ fieldsetKey ],
           [ name ]: value,
         },
       }) )

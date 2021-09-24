@@ -11,7 +11,8 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
   inheritClassNames = true,
   initialValue,
   emptyValue,
-  meta,
+  meta: externalMeta,
+  optional,
   validator = () => undefined,
 }:FormElementProps<TValue>) {
   const ctx = useContext( FormContext )
@@ -33,11 +34,17 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
   )
 
   const updateValues = (name:string, value:TValue | null) => {
-    ctx.updateValues?.( name, value ?? (emptyValue === undefined ? null : emptyValue), meta )
+    const meta = {
+      name,
+      value: value ?? (emptyValue === undefined ? null : emptyValue),
+      optional: optional ?? ctx.defaultOptional ?? false,
+      ...externalMeta,
+    }
+    ctx.updateValues?.( meta )
   }
 
   useEffect( () => {
-    if (!fixedValue) return
+    if (!fixedValue) return updateValues( name, null )
 
     if (!isValuePromise) {
       const error = validator( fixedValue )
@@ -47,6 +54,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
       return updateValues( name, fixedValue )
     }
 
+    updateValues( name, null )
     fixedValue.then( value => {
       const error = validator( value )
 

@@ -37,7 +37,7 @@ export default function ComplexInput({
     fieldsErrorClassName: undefined,
     fieldsClassName: undefined,
     values: initialValues,
-    updateValues: (name, value) => {
+    updateValues: ({ name, value }) => {
       setParts( parts => ({ ...parts, [ name ]:value }) )
     },
   }
@@ -67,7 +67,7 @@ export default function ComplexInput({
 
 
 function getInputsAndPartsFromChildren( children:ReactNode | ReactNode[] ) {
-  const initialParts:FormElementsValues = {}
+  const initialParts:{[key:string]: unknown} = {}
   const staticParts:string[] = []
   const inputs:ReactNode[] = []
 

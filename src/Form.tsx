@@ -1,5 +1,5 @@
-import { createContext, MouseEvent, ReactChildren, ReactNode, Ref, useState } from "react"
-import { FormElementsValues } from "./formElement/types"
+import { createContext, MouseEvent, ReactChildren, ReactNode, Ref, useContext, useState } from "react"
+import { FormElementMeta, FormElementsValues } from "./formElement/types"
 
 
 
@@ -7,12 +7,15 @@ export const createClasName = (...classNames:(string | null | undefined)[]) => c
 export const isError = err => err !== true && (err === false || err)
 const inputs: { [key:string]:ReactNode } = {}
 
+type FormValuesUpdater = (meta:FormElementMeta<unknown>) => void
+type FormValuesGetter = () => FormElementsValues<unknown>
 type FormProps = {
   children: ReactChildren,
   className?: string,
   values?: FormElementsValues,
   fieldsClassName?: string,
   fieldsErrorClassName?: string,
+  defaultOptional?: boolean,
   placeholders?: boolean,
   ref?:Ref<HTMLFormElement>
 }
@@ -20,16 +23,18 @@ type FormProps = {
 type FormSubmitProps = {
   children?: ReactNode,
   className?: string,
-  handler: (values:FormElementsValues) => void,
+  fullData?: boolean,
+  handler: (values:FormElementsValues<unknown>) => void,
 }
 
 export type FormContextValue = {
-  updateValues: (name:string, value:unknown, meta?:{ [key:string]: unknown }) => void,
-  submit: (e:MouseEvent, handler:((values:FormElementsValues<unknown>) => void)) => void,
+  updateValues: FormValuesUpdater,
+  getElementsData: FormValuesGetter,
   fieldsErrorClassName: string,
   fieldsClassName?: string,
   showPlaceholder: boolean,
-  values: FormElementsValues,
+  defaultOptional: boolean,
+  values: {[key:string]: unknown},
 }
 
 export const FormContext = createContext<Partial<FormContextValue>>({})
@@ -42,33 +47,51 @@ export default function Form({
   fieldsErrorClassName,
   values = {},
   placeholders = false,
+  defaultOptional = false,
   ref,
 }:FormProps) {
   const [ fieldsValues, setValues ] = useState<FormElementsValues<unknown>>({})
 
-  const updateValues = (name:string, value:unknown) => setValues( currentValues => ({
+  const updateValues:FormValuesUpdater = meta => setValues( currentValues => ({
     ...currentValues,
-    [ name ]: value,
+    [ meta.name ]: meta,
   }) )
 
-  const submit = async(e:MouseEvent, handler:(values:FormElementsValues<unknown>) => void) => {
-    e.preventDefault()
-    handler?.( fieldsValues )
+  const getElementsData:FormValuesGetter = () => fieldsValues
+
+  const ContextValue = {
+    updateValues,
+    getElementsData,
+    fieldsClassName,
+    fieldsErrorClassName,
+    showPlaceholder: placeholders,
+    defaultOptional,
+    values,
   }
 
   return (
     <form className={className} ref={ref}>
-      <FormContext.Provider value={{ updateValues, submit, fieldsClassName, fieldsErrorClassName, showPlaceholder:placeholders, values }}>
+      <FormContext.Provider value={ContextValue}>
         {children}
       </FormContext.Provider>
     </form>
   )
 }
 
-export function Submit({ children, className, handler }:FormSubmitProps) {
-  return (
-    <FormContext.Consumer>
-      {({ submit }) => <button type="submit" className={className} onClick={e => submit?.( e, handler )} children={children} />}
-    </FormContext.Consumer>
-  )
+export function Submit({ children, className, fullData = false, handler }:FormSubmitProps) {
+  const { getElementsData } = useContext( FormContext )
+
+  const submit = (e:MouseEvent) => {
+    e.preventDefault()
+
+    const fieldsValues = getElementsData?.() ?? {}
+
+    const data = fullData
+      ? fieldsValues
+      : Object.entries( fieldsValues ).reduce( (obj, [ name, { value } ]) => ({ ...obj, [ name ]:value }), {} )
+
+    handler?.( data )
+  }
+
+  return <button type="submit" className={className} onClick={submit} children={children} />
 }

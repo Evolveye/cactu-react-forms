@@ -19,9 +19,10 @@ export function Select({ children, fieldsClassName, multiple = false, label, ...
     showPlaceholder: undefined,
     fieldsErrorClassName: undefined,
     values: undefined,
-    updateValues: (name, value, checked) => {
-      console.log({ name, value, checked })
-    },
+    updateValues: undefined,
+    // updateValues: (name, value, checked) => {
+    //   console.log({ name, value, checked })
+    // },
   }
 
   const selectContextValue = {
