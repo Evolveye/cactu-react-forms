@@ -98,9 +98,10 @@ function extractValueFromEventOrReturnObj( obj:unknown ) {
   if (typeof obj !== `object` || obj == null) return obj
   if (![ `SyntheticBaseEvent` ].includes( obj.constructor.name )) return obj
 
-  const probablyEvent = obj as { currentTarget?:{ value?:unknown }}
+  const probablyEvent = obj as { target?:{ value?:unknown }, currentTarget?:{ value?:unknown }}
 
-  if (probablyEvent.currentTarget?.value) return probablyEvent.currentTarget.value
+  if (probablyEvent.target && `value` in probablyEvent.target) return probablyEvent.target.value
+  if (probablyEvent.currentTarget && `value` in probablyEvent.currentTarget) return probablyEvent.currentTarget.value
 
   return obj
 }

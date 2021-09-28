@@ -1,74 +1,180 @@
-import { FormElementPrimitiveValue, Validator } from "src/formElement/types.js"
+import { MutableRefObject } from "react"
+import { Validator } from "src/formElement/types.js"
 import { Input } from "./Input.js"
-import { InputAutocomplete, WrappedInputProps } from "./types.js"
+import { EmailInputProps, InputAutocomplete, LinkInputProps, MediaInputProps, NumberInputProps, PasswordInputProps, TextInputProps } from "./types.js"
 
 
 
-const buildValidator = (originalValidator:Validator | undefined, errorMessage:string, overridedValdiator:(value)=>boolean) => (text:string) => {
-  if (!overridedValdiator( text )) return errorMessage
+function buildValidator<TValue=string>( originalValidator:Validator<TValue> | undefined, overridedValdiator:(value:TValue) => (boolean | string | undefined) ) {
+  return (data:TValue) => {
+    const errorLike = overridedValdiator( data )
 
-  return originalValidator?.( text )
+    if (typeof errorLike === `string`) return errorLike
+
+    return originalValidator?.( data )
+  }
 }
 
-function File({ accept, ...inputProps }:WrappedInputProps<string | File> & { accept:string }) {
-  return (
-    <Input<string | File> {...inputProps} label={inputProps.label ?? inputProps.children}>
-      {p => <input {...p} defaultValue={typeof p.defaultValue === `string` ? p.defaultValue : undefined} type="file" accept={accept} onInput={({ currentTarget:t }) => p.onInput( t.files?.[ 0 ] ?? null )} />}
-    </Input>
+
+
+export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, ...restProps }:TextInputProps) {
+  const validator = buildValidator( restProps.validator, string => {
+    if (string.length > maxLength) return errors?.maxLength ?? `String is too long`
+    if (regExp && !regExp.test( string )) return errors?.regExp ?? `String not passed privided string`
+  } )
+
+  if (!long) return (
+    <Input<string>
+      ref={ref as MutableRefObject<HTMLInputElement>}
+      {...restProps}
+      validator={validator}
+      render={p => <input {...p} type="text" />}
+    />
   )
-}
-
-
-
-export function Text( props:WrappedInputProps ) {
-  return <Input {...props} children= {p => <input {...p} type="text" />} />
-}
-
-export function Number({ min, max, errorMessage = `It's not a number!`, ...restProps }:WrappedInputProps & { min:number, max:number, errorMessage?:string }) {
-  const validator = buildValidator( restProps.validator, errorMessage, text => /-?\d+(?:\.\d+)?/.test( text ) )
 
   return (
-    <Input {...restProps} validator={validator}>
-      {p => <input {...p} type="number" min={min} max={max} />}
-    </Input>
-  )
-}
-
-export function Password( props:WrappedInputProps ) {
-  return <Input autoComplete={InputAutocomplete.CURRENT_PASSWORD} {...props} children={p => <input {...p} type="password" />} />
-}
-
-export function Email({ errorMessage = `It's not an email!`, ...restProps }:WrappedInputProps & { errorMessage?:string }) {
-  const validator = buildValidator( restProps.validator, errorMessage, text => /\w+@\w+\.\w+/.test( text ) )
-
-  return (
-    <Input autoComplete={InputAutocomplete.EMAIL} {...restProps} validator={validator}>
-      {p => <input {...p} type="email" />}
-    </Input>
-  )
-}
-
-export function Link({ errorMessage = `It's not an url!`, ...restProps }:WrappedInputProps & { errorMessage?:string }) {
-  const validator = buildValidator( restProps.validator, errorMessage, text => /^https?:\/\/\S+/.test( text ) )
-
-  return <Text autoComplete={InputAutocomplete.URL} {...restProps} validator={validator} />
-}
-
-export function Textarea( props ) {
-  return (
-    <Input<FormElementPrimitiveValue, HTMLTextAreaElement> {...props}>
-      {
+    <Input<string, HTMLTextAreaElement>
+      ref={ref as MutableRefObject<HTMLTextAreaElement>}
+      {...restProps}
+      validator={validator}
+      render={
         p => (
           <>
-            {props.children || props.label ? <br /> : null}
+            {restProps.children || restProps.label ? <br /> : null}
             <textarea {...p} />
           </>
         )
       }
-    </Input>
+    />
   )
 }
 
-export function Image( props ) {
-  return <File {...props} accept="image/png, image/jpeg, image/jpg" />
+
+const MAX_SAFE_NUM = window?.Number.MAX_SAFE_INTEGER ??  1_000_000_000_000
+const MIN_SAFE_NUM = window?.Number.MIN_SAFE_INTEGER ?? -1_000_000_000_000
+export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = `int`, step, ...restProps }:NumberInputProps) {
+  // TODO if (type !== `big int`) {
+  if (min < MIN_SAFE_NUM) {
+    console.warn( `Value of "min" parameter is lover than minimum safe number. Use "big int" input type.` )
+  }
+
+  if (max > MAX_SAFE_NUM) {
+    console.warn( `Value of "max" parameter is bigger than maximum safe number. Use "big int" input type.` )
+  }
+  // }
+
+  const validator = buildValidator<number>( restProps.validator, number => {
+    if (typeof number !== `number`) return errors?.notANumber ?? `It's not a number!`
+    if (type === `int` && Math.floor( number ) !== number) return errors?.wrongType ?? `Number should be an inteeger`
+    if (max < number) return errors?.tooBig ?? `Number is too big`
+    if (number < min) return errors?.tooLow ?? `Number is too small`
+  } )
+
+  return (
+    <Input
+      emptyValue={0}
+      initialValue={0}
+      {...restProps}
+      validator={validator}
+      render={p => <input {...p} step={typeof step === `number` ? step : undefined} type="number" min={min} max={max}  />}
+    />
+  )
+}
+
+
+export function Password({ errors, required, ...restProps }:PasswordInputProps) {
+  const validator = buildValidator( restProps.validator, text => {
+    if (!required) return
+
+    if (required.minLength) {
+      if (text.length < required.minLength) return errors?.minLength ?? `Too short password`
+    }
+
+    if (required.numbers) {
+      if (text.match( /\d/g )?.length ?? 0 < required.numbers) return errors?.numbers ?? `Too small count of numbers`
+    }
+
+    if (required.loverChars) {
+      const sumOfLoverCaseChars = text.toLowerCase().split( `` ).reduce(
+        (sum, char, i) => sum + (char === text[ i ] ? 1 : 0),
+        0,
+      )
+
+      if (sumOfLoverCaseChars < required?.loverChars) return errors?.loverChars ?? `Too small count of lover case characters`
+    }
+
+    if (required.upperChars) {
+      const sumOfLoverCaseChars = text.toUpperCase().split( `` ).reduce(
+        (sum, char, i) => sum + (char === text[ i ] ? 1 : 0),
+        0,
+      )
+
+      if (sumOfLoverCaseChars < required.upperChars) return errors?.upperChars ?? `Too small count of upper case characters`
+    }
+
+    if (required.specialChars) {
+      const specialChars = new RegExp(`!@#$%^&*()+-=[]{};':",./<>?`.split( `` ).join( `|` ), `g`)
+
+      if (text.match( specialChars )?.length ?? 0 < required.specialChars) return errors?.specialChars ?? `Too small count of special characters`
+    }
+  } )
+
+  return (
+    <Input
+      autoComplete={InputAutocomplete.CURRENT_PASSWORD}
+      {...restProps}
+      validator={validator}
+      render={p => <input {...p} type="password" />}
+    />
+  )
+}
+
+
+export function Email({ error = `Invalid email`, ...restProps }:EmailInputProps) {
+  const validator = buildValidator( restProps.validator, text => /\w+@\w+\.\w+/.test( text ) ? undefined : error )
+
+  return (
+    <Input
+      autoComplete={InputAutocomplete.EMAIL}
+      {...restProps}
+      validator={validator}
+      render={p => <input {...p} type="email" />}
+    />
+  )
+}
+
+
+export function Link({ errors, protocol, ...restProps }:LinkInputProps) {
+  const protocols = protocol ? (Array.isArray( protocol ) ? protocol : [ protocol ]) : undefined
+  const validator = buildValidator( restProps.validator, text => {
+    let url:URL
+
+    try {
+      url = new URL(text)
+    } catch {
+      return errors?.wrongURL ?? `Invalid URL`
+    }
+
+    if (protocol !== undefined && protocols!.some( p => url.protocol.startsWith( p ) )) return errors?.wrongProtocol ?? `Wrong protocol`
+  } )
+
+  return <Text autoComplete={InputAutocomplete.URL} {...restProps} validator={validator} />
+}
+
+
+export function File({ audio, video, image, extensions, ...restProps }:MediaInputProps) {
+  if (extensions?.some( e => !e.startsWith( `.` ) )) console.error( `Every file extension should start with "."` )
+
+  const accept = [
+    audio ? `audio/*` : undefined,
+    video ? `video/*` : undefined,
+    image ? `image/*` : undefined,
+    ...(extensions ? extensions : []),
+  ].filter( Boolean ).join( `, ` )
+
+  return (
+    <Input<string | File> {...restProps} label={restProps.label ?? restProps.children}>
+      {p => <input {...p} defaultValue={typeof p.defaultValue === `string` ? p.defaultValue : undefined} type="file" accept={accept} onInput={({ currentTarget:t }) => p.onInput( t.files?.[ 0 ] ?? null )} />}
+    </Input>
+  )
 }

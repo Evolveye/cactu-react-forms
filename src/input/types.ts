@@ -1,4 +1,4 @@
-import { CSSProperties, FocusEvent, FormEvent, ReactNode, Ref } from "react"
+import { CSSProperties, FocusEvent, FormEvent, MutableRefObject, ReactNode } from "react"
 import { FormElementPrimitiveValue, FormElementProps } from "src/formElement/types.js"
 
 
@@ -66,12 +66,12 @@ export type NativeInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputEle
   defaultValue?: TValue,
   style?: CSSProperties,
   className?: string,
-  ref?: Ref<TRef>
+  ref?: MutableRefObject<TRef | null>
   onInput: (eOrValue:FormEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
   onBlur: (eOrValue:FocusEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
 }
 
-export type WrappedInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement> = FormElementProps<TValue, TRef> & {
+export type WrappedInputProps<TValue=string, TRef=HTMLInputElement> = FormElementProps<TValue, TRef> & {
   label?: ReactNode,
   children?: ReactNode,
   style?: CSSProperties,
@@ -79,9 +79,85 @@ export type WrappedInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputEl
   autoComplete?: InputAutocomplete,
 }
 
-export type InputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement> = WrappedInputProps<TValue, TRef> & {
-  children?: ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
-  // render?: ((props:NativeInputProps<TValue>) => JSX.Element) | null
+export type InputProps<TValue=string, TRef=HTMLInputElement> = WrappedInputProps<TValue, TRef> & {
+  children?: ReactNode, // ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
+  render?: ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
 }
 
+
+
+//
+// Inputs
+//
+
+
+
+export type NumberRange = {
+  length: number,
+  step: number,
+}
+
+export type TextInputProps = WrappedInputProps<string, HTMLInputElement | HTMLTextAreaElement> & {
+  errors?: {
+    maxLength?: string,
+    regExp?: string,
+  },
+  long?: boolean,
+  maxLength?: number,
+  regExp?: RegExp,
+}
+
+export type NumberInputProps = WrappedInputProps<number> & {
+  errors?: {
+    notANumber?: string,
+    wrongType?: string,
+    tooBig?: string,
+    tooLow?: string,
+  },
+  min?: number,
+  max?: number,
+  type?: `int` | `float`,
+  // TODO type?: `big int` | `int` | `float`,
+  step?: number | NumberRange | NumberRange[],
+}
+
+export type PasswordInputProps = WrappedInputProps<string> & {
+  errors?: {
+    minLength?: string,
+    numbers?: string,
+    loverChars?: string,
+    upperChars?: string,
+    specialChars?: string,
+  },
+  required?: {
+    minLength?: number,
+    numbers?: boolean | number,
+    loverChars?: boolean | number,
+    upperChars?: boolean | number,
+    specialChars?: boolean | number,
+  }
+}
+
+export type EmailInputProps = WrappedInputProps<string> & {
+  error?: string
+}
+
+export type LinkInputProps = WrappedInputProps<string> & {
+  errors?: {
+    wrongURL?: string,
+    wrongProtocol?: string,
+  }
+  protocol?: string | string[],
+}
+
+export type MediaInputProps = WrappedInputProps<string> & {
+  errors?: {
+    wrongURL?: string,
+    wrongProtocol?: string,
+  }
+  audio?: boolean,
+  video?: boolean,
+  image?: boolean,
+  extensions?: string[],
+}
 

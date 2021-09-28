@@ -13,13 +13,13 @@ export function Phone( props:WrappedComplexInputProps ) {
   return (
     <ComplexInput {...prepareComplexInputProps( props )}>
       +
-      <Number name="countryCode" min={0} max={999} emptyValue="0" />
+      <Number name="countryCode" min={0} max={999} />
       {` `}
-      <Number name="first_threeDigits" min={0} max={999} emptyValue="xxx" />
+      <Number name="first_threeDigits" min={0} max={999} />
       {` `}
-      <Number name="second_threeDigits" min={0} max={999} emptyValue="xxx" />
+      <Number name="second_threeDigits" min={0} max={999} />
       {` `}
-      <Number name="third_threeDigits" min={0} max={999} emptyValue="xxx" />
+      <Number name="third_threeDigits" min={0} max={999} />
     </ComplexInput>
   )
 }
@@ -28,9 +28,9 @@ export function Phone( props:WrappedComplexInputProps ) {
 export function Time( props:WrappedComplexInputProps ) {
   return (
     <ComplexInput {...prepareComplexInputProps( props )}>
-      <Number name="hours" min={0} max={23} emptyValue="--" />
+      <Number name="hours" min={0} max={23} />
       :
-      <Number name="minutes" min={0} max={59} emptyValue="--"  />
+      <Number name="minutes" min={0} max={59} />
     </ComplexInput>
   )
 }

@@ -6,14 +6,19 @@ import Form, { Email, Link, Password, Submit, Text, Number, Time, Select, Select
 export default function App() {
   return (
     <Form fieldsClassName="field">
-      <Number name="num" initialValue={123}>Number</Number>
       <Text name="login">Login</Text>
-      <Password name="password">Password</Password>
+      <Text long name="description">Desctiption</Text>
+
       <Email optional name="email">Email</Email>
+
+      <Password name="password">Password</Password>
+
+      <Number name="num" initialValue={123}>Any number</Number>
+
       <Link name="link" initialValue={new Promise( r => setTimeout( () => r( `http://localhost:3000` ), 2000 ) )}>Link</Link>
       <Time name="time">Time</Time>
 
-      <Select multiple name="select">
+      <Select multiple name="select" label="Select">
         <SelectItem>1</SelectItem>
         <SelectItem value={22}>2</SelectItem>
         <SelectItem value="33">3</SelectItem>

@@ -5,10 +5,10 @@ import { FormElementPrimitiveValue } from "src/formElement/types.js"
 
 
 export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
-  children: render,
-  // render = children,
+  children,
+  render,
   style,
-  label,
+  label = children,
   placeholder,
   ref,
   autoComplete = InputAutocomplete.OFF,

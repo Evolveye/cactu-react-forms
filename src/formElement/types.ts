@@ -1,4 +1,4 @@
-import { Ref } from "react"
+import { MutableRefObject } from "react"
 
 
 export type FormElementPrimitiveValue = number | string
@@ -23,6 +23,6 @@ export type FormElementProps<TValue=FormElementPrimitiveValue, TRef=unknown> = {
   emptyValue?: TValue,
   meta?: { [key:string]: unknown }
   optional?: boolean,
-  ref?: Ref<TRef>
+  ref?: MutableRefObject<TRef | null>
   validator?: Validator<TValue>,
 }
