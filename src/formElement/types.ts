@@ -1,29 +1,28 @@
-import { MutableRefObject } from "react"
-
-
-export type FormElementPrimitiveValue = number | string
-export type FormElementValue<TValue=FormElementPrimitiveValue> = TValue | Promise<TValue>
-export type FormElementMeta<TValue=FormElementPrimitiveValue> = {
+export type FormElementValue<TValue=string> = TValue | Promise<TValue>
+export type FormElementMeta<TValue=string> = {
   name: string,
   value: FormElementValue<TValue> | null,
   optional: boolean,
   [key:string]: unknown,
 }
 
-export type FormElementsValues<TValue=FormElementPrimitiveValue> = Record<string, FormElementMeta<TValue>>
-
 export type ValidationError = string
-export type Validator<TValue=FormElementPrimitiveValue> = (value:TValue) => ValidationError | undefined
-export type FormElementProps<TValue=FormElementPrimitiveValue, TRef=unknown> = {
-  ref?: MutableRefObject<TRef | null>
+export type Parser<TInput=string, TOutput=TInput> = (value:TInput) => TOutput
+export type Inputifier<TInput=string, TOutput=TInput> = (value:TInput) => TOutput
+export type Validator<TValue=string, TParsedValue=TValue> = (value:TValue, parser:Parser<TValue, TParsedValue>) => ValidationError | undefined
+
+export type FormElementsValues<TValue=string> = Record<string, FormElementMeta<TValue>>
+export type FormElementProps<TValue=string, TParsedValue=TValue> = {
   name: string,
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
-  initialValue?: FormElementValue<TValue>,
-  emptyValue: TValue,
+  initialValue?: FormElementValue<TParsedValue>,
+  emptyValue: TParsedValue,
   meta?: { [key:string]: unknown }
   optional?: boolean,
   preventWrongValue?: boolean,
-  validator?: Validator<TValue>,
+  validator?: Validator<TValue, TParsedValue>,
+  parse?: Parser<TValue, TParsedValue>
+  inputify?: Inputifier<TParsedValue, TValue>
 }

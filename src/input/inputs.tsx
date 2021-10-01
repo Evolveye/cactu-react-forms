@@ -1,5 +1,5 @@
 import { MutableRefObject } from "react"
-import { Validator } from "src/formElement/types.js"
+import { Parser, Validator } from "src/formElement/types.js"
 import { Input } from "./Input.js"
 import { EmailInputProps, InputAutocomplete, LinkInputProps, MediaInputProps, NumberInputProps, PasswordInputProps, TextInputProps } from "./types.js"
 
@@ -14,13 +14,13 @@ const parseNumber = numberLike => {
 }
 
 
-function buildValidator<TValue=string>( originalValidator:Validator<TValue> | undefined, overridedValdiator:(value:TValue) => (boolean | string | undefined) ) {
-  return (data:TValue) => {
+function buildValidator<TValue=string, TParsedValue=TValue>( originalValidator:Validator<TValue, TParsedValue> | undefined, overridedValdiator:(value:TValue) => (boolean | string | undefined) ) {
+  return (data:TValue, parse: Parser<TValue, TParsedValue>) => {
     const errorLike = overridedValdiator( data )
 
     if (typeof errorLike === `string`) return errorLike
 
-    return originalValidator?.( data )
+    return originalValidator?.( data, parse )
   }
 }
 
@@ -34,7 +34,7 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
   } )
 
   if (!long) return (
-    <Input<string>
+    <Input
       ref={ref as MutableRefObject<HTMLInputElement>}
       {...restProps}
       emptyValue={emptyValue}
@@ -44,7 +44,7 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
   )
 
   return (
-    <Input<string, HTMLTextAreaElement>
+    <Input<HTMLTextAreaElement>
       ref={ref as MutableRefObject<HTMLTextAreaElement>}
       {...restProps}
       emptyValue={emptyValue}
@@ -73,7 +73,7 @@ export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = 
   }
   // }
 
-  const validator = buildValidator<number>( restProps.validator, numberLike => {
+  const validator = buildValidator( restProps.validator, numberLike => {
     const number = parseNumber( numberLike )
 
     if (number === null) return errors?.notANumber ?? `It's not a number!`
@@ -83,11 +83,13 @@ export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = 
   } )
 
   return (
-    <Input
+    <Input<HTMLInputElement, string, number>
       preventWrongValue
       {...restProps}
       emptyValue={emptyValue ?? 0}
       validator={validator}
+      parse={v => parseNumber( v )!}
+      inputify={v => v.toString()}
       render={p => <input {...p} step={typeof step === `number` ? step : undefined} type="number" min={min} max={max}  />}
     />
   )
@@ -194,7 +196,7 @@ export function File({ audio, video, image, extensions, emptyValue, ...restProps
   ].filter( Boolean ).join( `, ` )
 
   return (
-    <Input<string | File>
+    <Input<HTMLInputElement, string | File>
       {...restProps}
       emptyValue={emptyValue ?? ``}
       label={restProps.label ?? restProps.children}

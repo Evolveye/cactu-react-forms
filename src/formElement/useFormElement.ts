@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react"
 import { createClasName, FormContext } from "src/Form.js"
-import { FormElementPrimitiveValue, FormElementProps } from "./types.js"
+import { FormElementProps, FormElementValue } from "./types.js"
 
 
 
-export default function useFormElement<TValue=FormElementPrimitiveValue>({
+export default function useFormElement<TValue=string, TParsedValue=TValue>({
   name,
   className,
   errorClassName,
@@ -15,12 +15,14 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
   optional,
   preventWrongValue = false,
   validator = () => undefined,
-}:FormElementProps<TValue>) {
+  inputify = x => x as unknown as TValue,
+  parse = x => x as unknown as TParsedValue,
+}:FormElementProps<TValue, TParsedValue>) {
   const ctx = useContext( FormContext )
 
-  const fixedValue = (initialValue ?? ctx.values?.[ name ] ?? emptyValue) as TValue
+  const fixedValue = (initialValue ?? ctx.values?.[ name ] ?? emptyValue) as FormElementValue<TParsedValue>
   const isValuePromise = fixedValue instanceof Promise
-  const [ value, setValue ] = useState( isValuePromise ? emptyValue : fixedValue )
+  const [ value, setValue ] = useState( inputify( isValuePromise ? emptyValue : fixedValue ) )
   const [ error, setError ] = useState<string | null>( null )
   const inheritedClassNames = inheritClassNames ? {
     className: ctx.fieldsClassName,
@@ -34,7 +36,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     error ? errorClassName : undefined,
   )
 
-  const updateValue = (newValue:TValue | null, newFormValue:TValue | null = newValue) => {
+  const updateValue = (newValue:TParsedValue | null, newFormValue:TParsedValue | null = newValue) => {
     const meta = {
       name,
       value: newFormValue ?? emptyValue,
@@ -43,14 +45,17 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     }
 
     ctx.updateValues?.( meta )
-    if (newValue !== null) setValue( newValue )
+
+    if (newValue !== null) {
+      setValue( inputify( newValue ) )
+    }
   }
 
   useEffect( () => {
     if (fixedValue === emptyValue) return updateValue( null )
 
     if (!isValuePromise) {
-      const error = validator( fixedValue )
+      const error = validator( inputify( fixedValue ), parse )
 
       if (error) return updateValue( null )
 
@@ -59,16 +64,19 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
 
     updateValue( null )
     fixedValue.then( value => {
-      const error = validator( value )
+      const error = validator( inputify( value ), parse )
 
       if (error) return updateValue( null )
 
       updateValue( value )
-      setValue( value )
+      setValue( inputify( value ) )
     } )
   }, [] )
 
   if (!name) console.error( `You have to pass "name" property to form element! Your field name will be "undefined"!` )
+
+  if (!!inputify && !parse) console.error( `Yu have defined "inputify" prop but no "parse" prop. You need to define both ot them!` )
+  else if (!!parse && !inputify) console.error( `Yu have defined "parse" prop but no "inputify" prop. You need to define both ot them!` )
 
   return {
     name,
@@ -77,22 +85,24 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     error,
     showPlaceholder: ctx.showPlaceholder ?? false,
     setError,
-    validator,
-    updateValue( newValue:TValue | null ) {
-      if (newValue !== null) {
-        const maybeError = validator( newValue )
+    validate: (value: TValue) => validator( value, parse ),
+    parse,
+    inputify,
+    updateValue( newValueString:TValue ) {
+      // if (newValueString !== null) {
+      const maybeError = validator( newValueString, parse )
 
-        if (maybeError) {
-          if (preventWrongValue) updateValue( null )
-          else updateValue( newValue, null )
+      if (maybeError) {
+        if (preventWrongValue) updateValue( null )
+        else updateValue( parse( newValueString ), null )
 
-          return
-        }
+        return
       }
+      // }
 
       if (error) setError( null )
 
-      updateValue( newValue )
+      updateValue( parse( newValueString ) )
     },
     findValueError,
     extractValueFromEventOrReturnObj,

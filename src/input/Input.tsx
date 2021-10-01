@@ -1,10 +1,9 @@
 import { InputAutocomplete, InputProps, NativeInputProps } from "./types.js"
 import useFormElement from "src/formElement/useFormElement.js"
-import { FormElementPrimitiveValue } from "src/formElement/types.js"
 
 
 
-export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
+export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>({
   children,
   render,
   style,
@@ -13,19 +12,19 @@ export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
   ref,
   autoComplete = InputAutocomplete.OFF,
   ...inputBaseProps
-}:InputProps<TValue, TRef>) {
+}:InputProps<TRef, TValue, TParsedValue>) {
   const {
     name,
     className,
     error,
     value,
     setError,
-    validator,
+    validate,
     updateValue,
     extractValueFromEventOrReturnObj,
   } = useFormElement( inputBaseProps )
 
-  const properties:NativeInputProps<TValue, TRef> = {
+  const properties:NativeInputProps<TRef, TValue> = {
     name,
     placeholder,
     autoComplete,
@@ -40,7 +39,7 @@ export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
     },
     onBlur: eOrValue => {
       const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
-      const meybeError = validator( value )
+      const meybeError = validate( value )
 
       if (meybeError) setError( meybeError )
     },

@@ -13,7 +13,7 @@ export function ComplexFieldset({
   ref,
   ...formElementProps
 }:ComplexFieldsetProps) {
-  const { name, className, value, updateValue } = useFormElement({ ...formElementProps, initialValue })
+  const { className, value, updateValue } = useFormElement({ ...formElementProps, initialValue })
   const [ fieldsValues, setFieldsValues ] = useState({})
   const [ fieldsCount, setFieldsCount ] = useState( initialCount )
 

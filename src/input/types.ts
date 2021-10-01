@@ -1,5 +1,5 @@
 import { CSSProperties, FocusEvent, FormEvent, MutableRefObject, ReactNode } from "react"
-import { FormElementPrimitiveValue, FormElementProps } from "src/formElement/types.js"
+import { FormElementProps } from "src/formElement/types.js"
 
 
 
@@ -59,30 +59,31 @@ export enum InputAutocomplete {
   PHOTO = `photo`,
 }
 
-export type NativeInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement> = {
+export type NativeInputProps<TRef=HTMLInputElement, TValue=string> = {
+  ref?: MutableRefObject<TRef | null>
   name: string,
   placeholder?: string,
   autoComplete?: string,
   value?:TValue,
   style?: CSSProperties,
   className?: string,
-  ref?: MutableRefObject<TRef | null>
   onInput: (eOrValue:FormEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
   onBlur: (eOrValue:FocusEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
 }
 
-export type InputProps<TValue=string, TRef=HTMLInputElement> = FormElementProps<TValue, TRef> & {
+export type InputProps<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue> = FormElementProps<TValue, TParsedValue> & {
+  ref?: MutableRefObject<TRef | null>
   label?: ReactNode,
   style?: CSSProperties,
   placeholder?: string,
   autoComplete?: InputAutocomplete,
   children?: ReactNode, // ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
-  render?: ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
+  render?: ((props:NativeInputProps<TRef, TValue>) => JSX.Element) | null,
 }
 
-export type WrappedInputProps<TValue=string, TRef=HTMLInputElement> =
-  & Omit<InputProps<TValue, TRef>, `emptyValue` | `render`>
-  & { emptyValue?:TValue }
+export type WrappedInputProps<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue> =
+  & Omit<InputProps<TRef, TValue, TParsedValue>, `emptyValue` | `render`>
+  & { emptyValue?:TParsedValue }
 
 
 
@@ -97,7 +98,7 @@ export type NumberRange = {
   step: number,
 }
 
-export type TextInputProps = WrappedInputProps<string, HTMLInputElement | HTMLTextAreaElement> & {
+export type TextInputProps = WrappedInputProps<HTMLInputElement | HTMLTextAreaElement> & {
   errors?: {
     maxLength?: string,
     regExp?: string,
@@ -107,7 +108,7 @@ export type TextInputProps = WrappedInputProps<string, HTMLInputElement | HTMLTe
   regExp?: RegExp,
 }
 
-export type NumberInputProps = WrappedInputProps<number> & {
+export type NumberInputProps = WrappedInputProps<HTMLInputElement, string, number> & {
   errors?: {
     notANumber?: string,
     wrongType?: string,
@@ -121,7 +122,7 @@ export type NumberInputProps = WrappedInputProps<number> & {
   step?: number | NumberRange | NumberRange[],
 }
 
-export type PasswordInputProps = WrappedInputProps<string> & {
+export type PasswordInputProps = WrappedInputProps & {
   errors?: {
     minLength?: string,
     numbers?: string,
@@ -138,11 +139,11 @@ export type PasswordInputProps = WrappedInputProps<string> & {
   }
 }
 
-export type EmailInputProps = WrappedInputProps<string> & {
+export type EmailInputProps = WrappedInputProps & {
   error?: string
 }
 
-export type LinkInputProps = WrappedInputProps<string> & {
+export type LinkInputProps = WrappedInputProps & {
   errors?: {
     wrongURL?: string,
     wrongProtocol?: string,
@@ -150,7 +151,7 @@ export type LinkInputProps = WrappedInputProps<string> & {
   protocol?: string | string[],
 }
 
-export type MediaInputProps = WrappedInputProps<string> & {
+export type MediaInputProps = WrappedInputProps<HTMLInputElement, string | File> & {
   errors?: {
     wrongURL?: string,
     wrongProtocol?: string,
