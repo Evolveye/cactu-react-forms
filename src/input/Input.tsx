@@ -16,12 +16,12 @@ export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
 }:InputProps<TValue, TRef>) {
   const {
     name,
-    initialPrimitiveValue,
     className,
     error,
+    value,
     setError,
     validator,
-    updateValues,
+    updateValue,
     extractValueFromEventOrReturnObj,
   } = useFormElement( inputBaseProps )
 
@@ -32,14 +32,11 @@ export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
     style,
     className: label ? undefined : className,
     ref,
+    value,
     onInput: eOrValue => {
       const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
-      const meybeError = validator( value )
 
-      if (meybeError) return updateValues( name, null )
-      if (error) setError( null )
-
-      updateValues( name, value )
+      updateValue( value )
     },
     onBlur: eOrValue => {
       const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
@@ -48,8 +45,6 @@ export function Input<TValue=FormElementPrimitiveValue, TRef=HTMLInputElement>({
       if (meybeError) setError( meybeError )
     },
   }
-
-  if (initialPrimitiveValue !== undefined) properties.defaultValue = initialPrimitiveValue
 
   if (!render) {
     console.error( `You have to pass function children or "render" property to input` )

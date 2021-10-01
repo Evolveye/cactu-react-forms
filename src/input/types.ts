@@ -63,7 +63,7 @@ export type NativeInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputEle
   name: string,
   placeholder?: string,
   autoComplete?: string,
-  defaultValue?: TValue,
+  value?:TValue,
   style?: CSSProperties,
   className?: string,
   ref?: MutableRefObject<TRef | null>
@@ -71,18 +71,18 @@ export type NativeInputProps<TValue=FormElementPrimitiveValue, TRef=HTMLInputEle
   onBlur: (eOrValue:FocusEvent<HTMLInputElement | HTMLTextAreaElement> | TValue | null) => void,
 }
 
-export type WrappedInputProps<TValue=string, TRef=HTMLInputElement> = FormElementProps<TValue, TRef> & {
+export type InputProps<TValue=string, TRef=HTMLInputElement> = FormElementProps<TValue, TRef> & {
   label?: ReactNode,
-  children?: ReactNode,
   style?: CSSProperties,
   placeholder?: string,
   autoComplete?: InputAutocomplete,
-}
-
-export type InputProps<TValue=string, TRef=HTMLInputElement> = WrappedInputProps<TValue, TRef> & {
   children?: ReactNode, // ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
   render?: ((props:NativeInputProps<TValue, TRef>) => JSX.Element) | null,
 }
+
+export type WrappedInputProps<TValue=string, TRef=HTMLInputElement> =
+  & Omit<InputProps<TValue, TRef>, `emptyValue` | `render`>
+  & { emptyValue?:TValue }
 
 
 

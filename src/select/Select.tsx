@@ -10,7 +10,7 @@ const FormSelectContext = createContext<Partial<SelectContext>>( {} )
 
 
 export function Select({ children, fieldsClassName, multiple = false, label, ...formElementProps }:SelectProps) {
-  const { name, className, updateValues } = useFormElement( formElementProps )
+  const { name, className, updateValue } = useFormElement( formElementProps )
   const [ checkedValues, setCheckedValues ] = useState<unknown[]>([])
 
   const overridedFormContextValue = {
@@ -47,7 +47,7 @@ export function Select({ children, fieldsClassName, multiple = false, label, ...
 
 
   useEffect( () => {
-    updateValues( name, checkedValues )
+    updateValue( checkedValues )
   }, [ JSON.stringify( checkedValues ) ] )
 
   return (

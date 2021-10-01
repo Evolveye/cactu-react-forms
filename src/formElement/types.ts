@@ -15,14 +15,14 @@ export type FormElementsValues<TValue=FormElementPrimitiveValue> = Record<string
 export type ValidationError = string
 export type Validator<TValue=FormElementPrimitiveValue> = (value:TValue) => ValidationError | undefined
 export type FormElementProps<TValue=FormElementPrimitiveValue, TRef=unknown> = {
+  ref?: MutableRefObject<TRef | null>
   name: string,
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
   initialValue?: FormElementValue<TValue>,
-  emptyValue?: TValue,
+  emptyValue: TValue,
   meta?: { [key:string]: unknown }
   optional?: boolean,
-  ref?: MutableRefObject<TRef | null>
   validator?: Validator<TValue>,
 }

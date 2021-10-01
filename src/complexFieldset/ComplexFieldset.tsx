@@ -13,7 +13,7 @@ export function ComplexFieldset({
   ref,
   ...formElementProps
 }:ComplexFieldsetProps) {
-  const { name, className, value, updateValues } = useFormElement({ ...formElementProps, initialValue })
+  const { name, className, value, updateValue } = useFormElement({ ...formElementProps, initialValue })
   const [ fieldsValues, setFieldsValues ] = useState({})
   const [ fieldsCount, setFieldsCount ] = useState( initialCount )
 
@@ -48,7 +48,7 @@ export function ComplexFieldset({
 
 
   useEffect( () => {
-    updateValues( name, Object.values( fieldsValues ) )
+    updateValue( Object.values( fieldsValues ) )
   }, [ JSON.stringify( fieldsValues ) ] )
 
   useEffect( () => {

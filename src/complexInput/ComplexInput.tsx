@@ -13,14 +13,15 @@ export default function ComplexInput({
   ref,
   ...formElementProps
 }:ComplexInputProps) {
-  const { name, className, initialPrimitiveValue, showPlaceholder, updateValues } = useFormElement( formElementProps )
+  const { className, value:initialValue, showPlaceholder, updateValue } = useFormElement({ ...formElementProps, emptyValue:`` })
+
   const { initialParts, staticParts, inputs } = getInputsAndPartsFromChildren( children )
   const finalStringify = getStringifier( initialParts, staticParts, userDefinedStringify )
 
   const [ parts, setParts ] = useState<{ [key:string]: unknown }>( initialParts )
   const { subinputs, initialValues } = usePreparedSubinputsData(
     inputs,
-    initialPrimitiveValue,
+    initialValue,
     initialParts,
     staticParts,
   )
@@ -30,7 +31,6 @@ export default function ComplexInput({
     [ Object.keys( initialParts ).join( `` ) ],
   )
 
-  const stringifiedParts = finalStringify( parts )
   const overridedContextValue:Partial<FormContextValue> = {
     showPlaceholder,
     fieldsErrorClassName: undefined,
@@ -42,8 +42,9 @@ export default function ComplexInput({
   }
 
 
+  const stringifiedParts = finalStringify( parts )
   useEffect( () => {
-    updateValues( name, stringifiedParts )
+    updateValue( stringifiedParts )
   }, [ stringifiedParts ] )
 
 

@@ -17,9 +17,9 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
 }:FormElementProps<TValue>) {
   const ctx = useContext( FormContext )
 
-  const fixedValue = (initialValue ?? ctx.values?.[ name ] ?? undefined) as TValue | undefined
+  const fixedValue = (initialValue ?? ctx.values?.[ name ] ?? emptyValue) as TValue
   const isValuePromise = fixedValue instanceof Promise
-  const [ value, setValue ] = useState( isValuePromise ? undefined : fixedValue )
+  const [ value, setValue ] = useState( isValuePromise ? emptyValue : fixedValue )
   const [ error, setError ] = useState<string | null>( null )
   const inheritedClassNames = inheritClassNames ? {
     className: ctx.fieldsClassName,
@@ -33,34 +33,36 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     error ? errorClassName : undefined,
   )
 
-  const updateValues = (name:string, value:TValue | null) => {
+  const updateValue = (newValue:TValue | null) => {
     const meta = {
       name,
-      value: value ?? (emptyValue === undefined ? null : emptyValue),
+      value: newValue ?? (emptyValue === undefined ? null : emptyValue),
       optional: optional ?? ctx.defaultOptional ?? false,
       ...externalMeta,
     }
+
     ctx.updateValues?.( meta )
+    setValue( newValue ?? emptyValue )
   }
 
   useEffect( () => {
-    if (!fixedValue) return updateValues( name, null )
+    if (fixedValue === emptyValue) return updateValue( null )
 
     if (!isValuePromise) {
       const error = validator( fixedValue )
 
-      if (error) return updateValues( name, null )
+      if (error) return updateValue( null )
 
-      return updateValues( name, fixedValue )
+      return updateValue( fixedValue )
     }
 
-    updateValues( name, null )
+    updateValue( null )
     fixedValue.then( value => {
       const error = validator( value )
 
-      if (error) return updateValues( name, null )
+      if (error) return updateValue( null )
 
-      updateValues( name, value )
+      updateValue( value )
       setValue( value )
     } )
   }, [] )
@@ -71,12 +73,21 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     name,
     className: fullClassName,
     value,
-    initialPrimitiveValue: value,
     error,
     showPlaceholder: ctx.showPlaceholder ?? false,
     setError,
     validator,
-    updateValues,
+    updateValue( value:TValue | null ) {
+      if (value !== null) {
+        const maybeError = validator( value )
+
+        if (maybeError) return updateValue( null )
+      }
+
+      if (error) setError( null )
+
+      updateValue( value )
+    },
     findValueError,
     extractValueFromEventOrReturnObj,
   }

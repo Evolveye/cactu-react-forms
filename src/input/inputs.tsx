@@ -17,7 +17,8 @@ function buildValidator<TValue=string>( originalValidator:Validator<TValue> | un
 
 
 
-export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, ...restProps }:TextInputProps) {
+export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, emptyValue:userDefinedEmptyValue, ...restProps }:TextInputProps) {
+  const emptyValue = userDefinedEmptyValue ?? ``
   const validator = buildValidator( restProps.validator, string => {
     if (string.length > maxLength) return errors?.maxLength ?? `String is too long`
     if (regExp && !regExp.test( string )) return errors?.regExp ?? `String not passed privided string`
@@ -27,6 +28,7 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
     <Input<string>
       ref={ref as MutableRefObject<HTMLInputElement>}
       {...restProps}
+      emptyValue={emptyValue}
       validator={validator}
       render={p => <input {...p} type="text" />}
     />
@@ -36,6 +38,7 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
     <Input<string, HTMLTextAreaElement>
       ref={ref as MutableRefObject<HTMLTextAreaElement>}
       {...restProps}
+      emptyValue={emptyValue}
       validator={validator}
       render={
         p => (
@@ -52,7 +55,7 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
 
 const MAX_SAFE_NUM = window?.Number.MAX_SAFE_INTEGER ??  1_000_000_000_000
 const MIN_SAFE_NUM = window?.Number.MIN_SAFE_INTEGER ?? -1_000_000_000_000
-export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = `int`, step, ...restProps }:NumberInputProps) {
+export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = `int`, step, emptyValue, ...restProps }:NumberInputProps) {
   // TODO if (type !== `big int`) {
   if (min < MIN_SAFE_NUM) {
     console.warn( `Value of "min" parameter is lover than minimum safe number. Use "big int" input type.` )
@@ -72,9 +75,9 @@ export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = 
 
   return (
     <Input
-      emptyValue={0}
       initialValue={0}
       {...restProps}
+      emptyValue={emptyValue ?? 0}
       validator={validator}
       render={p => <input {...p} step={typeof step === `number` ? step : undefined} type="number" min={min} max={max}  />}
     />
@@ -82,7 +85,7 @@ export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = 
 }
 
 
-export function Password({ errors, required, ...restProps }:PasswordInputProps) {
+export function Password({ errors, required, emptyValue, ...restProps }:PasswordInputProps) {
   const validator = buildValidator( restProps.validator, text => {
     if (!required) return
 
@@ -123,6 +126,7 @@ export function Password({ errors, required, ...restProps }:PasswordInputProps) 
     <Input
       autoComplete={InputAutocomplete.CURRENT_PASSWORD}
       {...restProps}
+      emptyValue={emptyValue ?? ``}
       validator={validator}
       render={p => <input {...p} type="password" />}
     />
@@ -130,13 +134,14 @@ export function Password({ errors, required, ...restProps }:PasswordInputProps) 
 }
 
 
-export function Email({ error = `Invalid email`, ...restProps }:EmailInputProps) {
+export function Email({ error = `Invalid email`, emptyValue, ...restProps }:EmailInputProps) {
   const validator = buildValidator( restProps.validator, text => /\w+@\w+\.\w+/.test( text ) ? undefined : error )
 
   return (
     <Input
       autoComplete={InputAutocomplete.EMAIL}
       {...restProps}
+      emptyValue={emptyValue ?? ``}
       validator={validator}
       render={p => <input {...p} type="email" />}
     />
@@ -144,7 +149,7 @@ export function Email({ error = `Invalid email`, ...restProps }:EmailInputProps)
 }
 
 
-export function Link({ errors, protocol, ...restProps }:LinkInputProps) {
+export function Link({ errors, protocol, emptyValue, ...restProps }:LinkInputProps) {
   const protocols = protocol ? (Array.isArray( protocol ) ? protocol : [ protocol ]) : undefined
   const validator = buildValidator( restProps.validator, text => {
     let url:URL
@@ -158,11 +163,18 @@ export function Link({ errors, protocol, ...restProps }:LinkInputProps) {
     if (protocol !== undefined && protocols!.some( p => url.protocol.startsWith( p ) )) return errors?.wrongProtocol ?? `Wrong protocol`
   } )
 
-  return <Text autoComplete={InputAutocomplete.URL} {...restProps} validator={validator} />
+  return (
+    <Text
+      autoComplete={InputAutocomplete.URL}
+      {...restProps}
+      emptyValue={emptyValue ?? ``}
+      validator={validator}
+    />
+  )
 }
 
 
-export function File({ audio, video, image, extensions, ...restProps }:MediaInputProps) {
+export function File({ audio, video, image, extensions, emptyValue, ...restProps }:MediaInputProps) {
   if (extensions?.some( e => !e.startsWith( `.` ) )) console.error( `Every file extension should start with "."` )
 
   const accept = [
@@ -173,8 +185,21 @@ export function File({ audio, video, image, extensions, ...restProps }:MediaInpu
   ].filter( Boolean ).join( `, ` )
 
   return (
-    <Input<string | File> {...restProps} label={restProps.label ?? restProps.children}>
-      {p => <input {...p} defaultValue={typeof p.defaultValue === `string` ? p.defaultValue : undefined} type="file" accept={accept} onInput={({ currentTarget:t }) => p.onInput( t.files?.[ 0 ] ?? null )} />}
-    </Input>
+    <Input<string | File>
+      {...restProps}
+      emptyValue={emptyValue ?? ``}
+      label={restProps.label ?? restProps.children}
+      render={
+        p => (
+          <input
+            {...p}
+            type="file"
+            accept={accept}
+            value={typeof p.value === `string` ? p.value : undefined}
+            onInput={({ currentTarget:t }) => p.onInput( t.files?.[ 0 ] ?? null )}
+          />
+        )
+      }
+    />
   )
 }
