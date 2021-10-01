@@ -24,5 +24,6 @@ export type FormElementProps<TValue=FormElementPrimitiveValue, TRef=unknown> = {
   emptyValue: TValue,
   meta?: { [key:string]: unknown }
   optional?: boolean,
+  preventWrongValue?: boolean,
   validator?: Validator<TValue>,
 }

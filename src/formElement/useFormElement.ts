@@ -13,6 +13,7 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
   emptyValue,
   meta: externalMeta,
   optional,
+  preventWrongValue = false,
   validator = () => undefined,
 }:FormElementProps<TValue>) {
   const ctx = useContext( FormContext )
@@ -33,16 +34,16 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     error ? errorClassName : undefined,
   )
 
-  const updateValue = (newValue:TValue | null) => {
+  const updateValue = (newValue:TValue | null, newFormValue:TValue | null = newValue) => {
     const meta = {
       name,
-      value: newValue ?? (emptyValue === undefined ? null : emptyValue),
+      value: newFormValue ?? emptyValue,
       optional: optional ?? ctx.defaultOptional ?? false,
       ...externalMeta,
     }
 
     ctx.updateValues?.( meta )
-    setValue( newValue ?? emptyValue )
+    if (newValue !== null) setValue( newValue )
   }
 
   useEffect( () => {
@@ -77,16 +78,21 @@ export default function useFormElement<TValue=FormElementPrimitiveValue>({
     showPlaceholder: ctx.showPlaceholder ?? false,
     setError,
     validator,
-    updateValue( value:TValue | null ) {
-      if (value !== null) {
-        const maybeError = validator( value )
+    updateValue( newValue:TValue | null ) {
+      if (newValue !== null) {
+        const maybeError = validator( newValue )
 
-        if (maybeError) return updateValue( null )
+        if (maybeError) {
+          if (preventWrongValue) updateValue( null )
+          else updateValue( newValue, null )
+
+          return
+        }
       }
 
       if (error) setError( null )
 
-      updateValue( value )
+      updateValue( newValue )
     },
     findValueError,
     extractValueFromEventOrReturnObj,

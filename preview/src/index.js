@@ -13,7 +13,7 @@ export default function App() {
 
       <Password name="password">Password</Password>
 
-      <Number name="num" initialValue={123}>Any number</Number>
+      <Number name="num" initialValue={123} max={1234}>Any number</Number>
 
       <Link name="link" initialValue={new Promise( r => setTimeout( () => r( `http://localhost:3000` ), 2000 ) )}>Link</Link>
       <Time name="time">Time</Time>

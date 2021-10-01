@@ -5,6 +5,15 @@ import { EmailInputProps, InputAutocomplete, LinkInputProps, MediaInputProps, Nu
 
 
 
+const MAX_SAFE_NUM = window?.Number.MAX_SAFE_INTEGER ??  1_000_000_000_000
+const MIN_SAFE_NUM = window?.Number.MIN_SAFE_INTEGER ?? -1_000_000_000_000
+const parseNumber = numberLike => {
+  const number = window?.Number( numberLike ) ?? 1 * numberLike
+
+  return isNaN( number ) ? null : number
+}
+
+
 function buildValidator<TValue=string>( originalValidator:Validator<TValue> | undefined, overridedValdiator:(value:TValue) => (boolean | string | undefined) ) {
   return (data:TValue) => {
     const errorLike = overridedValdiator( data )
@@ -53,8 +62,6 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
 }
 
 
-const MAX_SAFE_NUM = window?.Number.MAX_SAFE_INTEGER ??  1_000_000_000_000
-const MIN_SAFE_NUM = window?.Number.MIN_SAFE_INTEGER ?? -1_000_000_000_000
 export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = `int`, step, emptyValue, ...restProps }:NumberInputProps) {
   // TODO if (type !== `big int`) {
   if (min < MIN_SAFE_NUM) {
@@ -66,8 +73,10 @@ export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = 
   }
   // }
 
-  const validator = buildValidator<number>( restProps.validator, number => {
-    if (typeof number !== `number`) return errors?.notANumber ?? `It's not a number!`
+  const validator = buildValidator<number>( restProps.validator, numberLike => {
+    const number = parseNumber( numberLike )
+
+    if (number === null) return errors?.notANumber ?? `It's not a number!`
     if (type === `int` && Math.floor( number ) !== number) return errors?.wrongType ?? `Number should be an inteeger`
     if (max < number) return errors?.tooBig ?? `Number is too big`
     if (number < min) return errors?.tooLow ?? `Number is too small`
@@ -75,7 +84,7 @@ export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = 
 
   return (
     <Input
-      initialValue={0}
+      preventWrongValue
       {...restProps}
       emptyValue={emptyValue ?? 0}
       validator={validator}
