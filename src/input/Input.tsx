@@ -1,12 +1,28 @@
 import { InputAutocomplete, InputProps, NativeInputProps } from "./types.js"
 import useFormElement from "src/formElement/useFormElement.js"
+import { CSSProperties } from "react"
 
+
+
+const inputStyle:CSSProperties = {
+  display: `block`,
+  marginLeft: 10,
+  marginBottom: 10,
+}
+
+const labelStyle:CSSProperties = {
+  fontWeight: `bold`,
+}
+
+const errorStyle:CSSProperties = {
+  color: `red`,
+  fontSize: `0.8em`,
+}
 
 
 export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>({
   children,
   render,
-  style,
   label = children,
   placeholder,
   innerRef,
@@ -18,6 +34,7 @@ export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>
     className,
     error,
     value,
+    getStyle,
     setError,
     validate,
     updateValue,
@@ -29,7 +46,7 @@ export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>
     name,
     placeholder,
     autoComplete,
-    style,
+    style: getStyle( inputStyle, !label ),
     className: label ? undefined : className,
     ref: innerRef,
     value,
@@ -63,12 +80,14 @@ export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>
 
   const content = (
     <>
-      {label} {render({ ...properties })}
-      {error && <><br /><p>{error}</p></>}
+      {label}
+      {` `}
+      {error && <span style={getStyle( errorStyle )}>{error}</span>}
+      {render({ ...properties })}
     </>
   )
 
   return label
-    ? <label className={label ? className : undefined}>{content}</label>
+    ? <label className={label ? className : undefined} style={getStyle( labelStyle, !!label )}>{content}</label>
     : content
 }

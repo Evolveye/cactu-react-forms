@@ -1,4 +1,4 @@
-import { BaseSyntheticEvent, useContext, useEffect, useState } from "react"
+import { BaseSyntheticEvent, CSSProperties, useContext, useEffect, useState } from "react"
 import { createClasName, FormContext } from "src/Form.js"
 import { FormElementProps, FormElementValue } from "./types.js"
 
@@ -7,6 +7,8 @@ import { FormElementProps, FormElementValue } from "./types.js"
 export default function useFormElement<TValue=string, TParsedValue=TValue>({
   name,
   className,
+  style,
+  allowPredefinedStyle,
   errorClassName,
   inheritClassNames = true,
   initialValue,
@@ -35,6 +37,8 @@ export default function useFormElement<TValue=string, TParsedValue=TValue>({
     className,
     error ? errorClassName : undefined,
   )
+
+  const shouldIncludePredefinedStyle = (allowPredefinedStyle ?? ctx.allowPredefinedStyle ?? (!fullClassName && !style))
 
   const updateValue = (newValue?:TValue | null, newFormValue?:TValue | null) => {
     if (newFormValue === undefined) newFormValue = newValue
@@ -89,7 +93,16 @@ export default function useFormElement<TValue=string, TParsedValue=TValue>({
     value,
     error,
     showPlaceholder: ctx.showPlaceholder ?? false,
+    shouldIncludePredefinedStyle,
     setError,
+    getStyle( styles?:CSSProperties, includeExternalStyles = !styles ? true : false ) {
+      const externalStylesCanBeIncluded = includeExternalStyles && style
+      const predefinedStylesCanBeIncluded =  shouldIncludePredefinedStyle && styles
+
+      return (style || shouldIncludePredefinedStyle && (externalStylesCanBeIncluded || predefinedStylesCanBeIncluded))
+        ? Object.assign( {}, externalStylesCanBeIncluded ? style : {}, predefinedStylesCanBeIncluded ? styles : {} )
+        : undefined
+    },
     validate: (value: TValue) => validator( value, parse ),
     parse,
     inputify,

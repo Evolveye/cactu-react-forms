@@ -16,6 +16,7 @@ type FormProps = {
   fieldsErrorClassName?: string,
   defaultOptional?: boolean,
   placeholders?: boolean,
+  allowPredefinedStyle?: boolean,
   ref?:Ref<HTMLFormElement>
 }
 
@@ -29,6 +30,7 @@ type FormSubmitProps = {
 export type FormContextValue = {
   updateValues: FormValuesUpdater,
   getElementsData: FormValuesGetter,
+  allowPredefinedStyle?: boolean,
   fieldsErrorClassName: string,
   fieldsClassName?: string,
   showPlaceholder: boolean,
@@ -46,6 +48,7 @@ export const Form:(properties:FormProps) => JSX.Element = ({
   values = {},
   placeholders = false,
   defaultOptional = false,
+  allowPredefinedStyle,
   ref,
 }) => {
   const [ fieldsValues, setValues ] = useState<FormElementsValues<unknown>>({})
@@ -63,6 +66,7 @@ export const Form:(properties:FormProps) => JSX.Element = ({
     fieldsClassName,
     fieldsErrorClassName,
     showPlaceholder: placeholders,
+    allowPredefinedStyle,
     defaultOptional,
     values,
   }

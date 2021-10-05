@@ -5,7 +5,7 @@ import Form, { Email, Link, Password, Submit, Text, Number, Time, Select, Select
 
 export default function App() {
   return (
-    <Form fieldsClassName="field">
+    <Form fieldsClassName="field" allowPredefinedStyle>
       <Text name="login">Login</Text>
       <Text long name="description">Desctiption</Text>
 
@@ -13,17 +13,17 @@ export default function App() {
 
       <Password name="password">Password</Password>
 
-      <Number name="num" initialValue={123} min={-1234}>Inteeger</Number>
-      <Number name="num" type="float" floatPrecision={5} initialValue={123.45} max={1234}>Float</Number>
-      <Number name="num" type="big int" initialValue={12345n}>Big int</Number>
+      <Number name="int" initialValue={123} min={-1234}>Inteeger</Number>
+      <Number name="float" type="float" floatPrecision={5} initialValue={123.45} max={1234}>Float</Number>
+      <Number name="bigint" type="big int" initialValue={12345n}>Big int</Number>
 
       <Link name="link" initialValue={new Promise( r => setTimeout( () => r( `http://localhost:3000` ), 2000 ) )}>Link</Link>
       <Time name="time">Time</Time>
 
       <Select multiple name="select" label="Select">
         <SelectItem>1</SelectItem>
-        <SelectItem value={22}>2</SelectItem>
-        <SelectItem value="33">3</SelectItem>
+        <SelectItem value={22}>2 2 2</SelectItem>
+        <SelectItem value="33">[3]</SelectItem>
       </Select>
 
       <ComplexFieldset name="hours" className="is-complex" label="Hours">

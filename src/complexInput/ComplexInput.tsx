@@ -1,19 +1,34 @@
-import { Children, ReactNode, useEffect, useMemo, useState } from "react"
+import { Children, CSSProperties, ReactNode, useEffect, useMemo, useState } from "react"
 import { FormContext, FormContextValue } from "src/Form.js"
 import useFormElement from "src/formElement/useFormElement.js"
 import { ComplexInputProps } from "./types.js"
 
 
 
+const fieldsetStyle:CSSProperties = {
+  marginBottom: 10,
+  padding: 5,
+  width: `max-content`,
+}
+
+const legendStyle:CSSProperties = {
+  fontWeight: `bold`,
+}
+
+const subInputsStyle:CSSProperties = {
+  display: `flex`,
+  marginLeft: 10,
+}
+
+
 export default function ComplexInput({
   children,
   label,
-  style,
   stringify: userDefinedStringify,
   ref,
   ...formElementProps
 }:ComplexInputProps) {
-  const { className, value:initialValue, showPlaceholder, updateValue } = useFormElement({ ...formElementProps, emptyValue:`` })
+  const { className, value:initialValue, showPlaceholder, getStyle, updateValue } = useFormElement({ ...formElementProps, emptyValue:`` })
 
   const { initialParts, staticParts, inputs } = getInputsAndPartsFromChildren( children )
   const finalStringify = getStringifier( initialParts, staticParts, userDefinedStringify )
@@ -56,9 +71,12 @@ export default function ComplexInput({
 
   return (
     <FormContext.Provider value={overridedContextValue}>
-      <fieldset className={className} style={style} ref={ref}>
-        {label && <legend>{label}</legend>}
-        {subinputs}
+      <fieldset className={className} style={getStyle( fieldsetStyle )} ref={ref}>
+        {label && <legend style={getStyle( legendStyle )}>{label}</legend>}
+
+        <div style={getStyle( subInputsStyle )}>
+          {subinputs}
+        </div>
       </fieldset>
     </FormContext.Provider>
   )

@@ -1,3 +1,5 @@
+import { CSSProperties } from "react"
+
 export type FormElementValue<TValue=string> = TValue | Promise<TValue>
 export type FormElementMeta<TValue=string> = {
   name: string,
@@ -19,6 +21,8 @@ export type FormElementProps<TValue=string, TParsedValue=TValue> = {
   className?: string,
   errorClassName?: string,
   inheritClassNames?: boolean,
+  style?: CSSProperties,
+  allowPredefinedStyle?: boolean,
   initialValue?: FormElementValue<TParsedValue>,
   emptyValue: TParsedValue,
   meta?: { [key:string]: unknown }

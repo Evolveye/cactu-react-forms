@@ -28,16 +28,16 @@ export function Phone( props:WrappedComplexInputProps ) {
 export function Time( props:WrappedComplexInputProps ) {
   return (
     <ComplexInput {...prepareComplexInputProps( props )}>
-      <Number name="hours" min={0} max={23} />
+      <Number name="hours" style={{ padding:`0 5px`, width:33, textAlign:`right` }} min={0} max={23} />
       :
-      <Number name="minutes" min={0} max={59} />
+      <Number name="minutes" style={{ padding:`0 5px`, width:33, textAlign:`left` }} min={0} max={59} />
     </ComplexInput>
   )
 }
 
 export function TimeRange( props:WrappedComplexInputProps ) {
   return (
-    <ComplexInput {...prepareComplexInputProps({ ...props, style:{ display:`flex` } })}>
+    <ComplexInput {...prepareComplexInputProps( props )}>
       <Time name="from" />
       {` -- `}
       <Time name="to" />

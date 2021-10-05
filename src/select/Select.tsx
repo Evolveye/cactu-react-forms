@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, createContext } from "react"
+import { useState, useContext, useEffect, createContext, CSSProperties } from "react"
 import { createClasName, FormContext } from "src/Form.js"
 import useFormElement from "src/formElement/useFormElement.js"
 import { SelectContext, SelectProps } from "./types.js"
@@ -7,10 +7,24 @@ import { SelectContext, SelectProps } from "./types.js"
 
 const FormSelectContext = createContext<Partial<SelectContext>>( {} )
 
+const fieldsetStyle:CSSProperties = {
+  marginBottom: 10,
+  padding: 5,
+  width: `max-content`,
+}
+
+const legendStyle:CSSProperties = {
+  fontWeight: `bold`,
+}
+
+const itemsStyle:CSSProperties = {
+  display: `block`,
+  marginLeft: 10,
+}
 
 
 export function Select({ children, fieldsClassName, multiple = false, label, ...formElementProps }:SelectProps) {
-  const { name, className, updateValue } = useFormElement( formElementProps )
+  const { name, className, getStyle, updateValue } = useFormElement( formElementProps )
   const [ checkedValues, setCheckedValues ] = useState<unknown[]>([])
 
   const overridedFormContextValue = {
@@ -52,12 +66,14 @@ export function Select({ children, fieldsClassName, multiple = false, label, ...
 
   return (
     <FormContext.Provider value={overridedFormContextValue}>
-      <fieldset className={className}>
-        {label && <legend>{label}</legend>}
+      <fieldset className={className} style={getStyle( fieldsetStyle )}>
+        {label && <legend style={getStyle( legendStyle )}>{label}</legend>}
 
-        <FormSelectContext.Provider value={selectContextValue}>
-          {children}
-        </FormSelectContext.Provider>
+        <div style={getStyle( itemsStyle )}>
+          <FormSelectContext.Provider value={selectContextValue}>
+            {children}
+          </FormSelectContext.Provider>
+        </div>
       </fieldset>
     </FormContext.Provider>
   )
@@ -79,7 +95,7 @@ export function SelectItem({ children, value = children, checked = false, classN
 
   return (
     <label className={fullClassName} style={fullClassName ? undefined : { display:`block` }}>
-      {children} <input type={type} name={selectCtx.name} onChange={handleChange} checked={isChecked} />
+      <input type={type} name={selectCtx.name} onChange={handleChange} checked={isChecked} /> {children}
     </label>
   )
 }
