@@ -9,7 +9,7 @@ export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>
   style,
   label = children,
   placeholder,
-  ref,
+  innerRef,
   autoComplete = InputAutocomplete.OFF,
   ...inputBaseProps
 }:InputProps<TRef, TValue, TParsedValue>) {
@@ -21,6 +21,7 @@ export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>
     setError,
     validate,
     updateValue,
+    checkObjIsEvent,
     extractValueFromEventOrReturnObj,
   } = useFormElement( inputBaseProps )
 
@@ -30,18 +31,28 @@ export function Input<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue>
     autoComplete,
     style,
     className: label ? undefined : className,
-    ref,
+    ref: innerRef,
     value,
     onInput: eOrValue => {
-      const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
+      if (checkObjIsEvent( eOrValue )) {
+        const { data } = eOrValue.nativeEvent
 
-      updateValue( value )
+        if (typeof value === `string` && typeof data === `string` && `+-.e`.includes( data )) {
+          return updateValue( (value + data) as unknown as TValue )
+        } else {
+          const newValue = extractValueFromEventOrReturnObj( eOrValue ) as TValue
+
+          return updateValue( newValue )
+        }
+      }
+
+      updateValue( eOrValue as TValue )
     },
     onBlur: eOrValue => {
       const value = extractValueFromEventOrReturnObj( eOrValue ) as TValue
       const meybeError = validate( value )
 
-      if (meybeError) setError( meybeError )
+      if (typeof meybeError === `string`) setError( meybeError )
     },
   }
 

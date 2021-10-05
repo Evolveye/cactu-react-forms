@@ -13,7 +13,9 @@ export default function App() {
 
       <Password name="password">Password</Password>
 
-      <Number name="num" initialValue={123} max={1234}>Any number</Number>
+      <Number name="num" initialValue={123} min={-1234}>Inteeger</Number>
+      <Number name="num" type="float" floatPrecision={5} initialValue={123.45} max={1234}>Float</Number>
+      <Number name="num" type="big int" initialValue={12345n}>Big int</Number>
 
       <Link name="link" initialValue={new Promise( r => setTimeout( () => r( `http://localhost:3000` ), 2000 ) )}>Link</Link>
       <Time name="time">Time</Time>

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { BaseSyntheticEvent, useContext, useEffect, useState } from "react"
 import { createClasName, FormContext } from "src/Form.js"
 import { FormElementProps, FormElementValue } from "./types.js"
 
@@ -36,47 +36,52 @@ export default function useFormElement<TValue=string, TParsedValue=TValue>({
     error ? errorClassName : undefined,
   )
 
-  const updateValue = (newValue:TParsedValue | null, newFormValue:TParsedValue | null = newValue) => {
+  const updateValue = (newValue?:TValue | null, newFormValue?:TValue | null) => {
+    if (newFormValue === undefined) newFormValue = newValue
+
     const meta = {
       name,
-      value: newFormValue ?? emptyValue,
+      value: newFormValue ? parse( newFormValue ) : emptyValue,
       optional: optional ?? ctx.defaultOptional ?? false,
       ...externalMeta,
     }
 
     ctx.updateValues?.( meta )
 
-    if (newValue !== null) {
-      setValue( inputify( newValue ) )
+    if (newValue !== undefined && (newValue !== null || emptyValue !== undefined)) {
+      setValue( newValue ?? inputify( emptyValue ) )
     }
   }
 
   useEffect( () => {
-    if (fixedValue === emptyValue) return updateValue( null )
+    if (fixedValue === emptyValue) return updateValue( undefined, null )
 
-    if (!isValuePromise) {
-      const error = validator( inputify( fixedValue ), parse )
+    const update = (v, doInputValue = false) => {
+      const inputifiedValue = inputify( v )
+      const error = validator( inputifiedValue, parse )
 
-      if (error) return updateValue( null )
+      if (error) return updateValue( undefined, null )
 
-      return updateValue( fixedValue )
+      updateValue( inputifiedValue )
+      if (doInputValue) setValue( inputifiedValue )
     }
 
-    updateValue( null )
+    if (!isValuePromise) return update( fixedValue )
+
+    let mounted = true
+
+    updateValue( undefined, null )
     fixedValue.then( value => {
-      const error = validator( inputify( value ), parse )
-
-      if (error) return updateValue( null )
-
-      updateValue( value )
-      setValue( inputify( value ) )
+      if (mounted) update( value, true )
     } )
+
+    return () => { mounted = false }
   }, [] )
 
   if (!name) console.error( `You have to pass "name" property to form element! Your field name will be "undefined"!` )
 
-  if (!!inputify && !parse) console.error( `Yu have defined "inputify" prop but no "parse" prop. You need to define both ot them!` )
-  else if (!!parse && !inputify) console.error( `Yu have defined "parse" prop but no "inputify" prop. You need to define both ot them!` )
+  if (!!inputify && !parse) console.error( `You have defined "inputify" prop but no "parse" prop. You need to define both ot them!` )
+  else if (!!parse && !inputify) console.error( `You have defined "parse" prop but no "inputify" prop. You need to define both ot them!` )
 
   return {
     name,
@@ -90,11 +95,11 @@ export default function useFormElement<TValue=string, TParsedValue=TValue>({
     inputify,
     updateValue( newValueString:TValue ) {
       // if (newValueString !== null) {
-      const maybeError = validator( newValueString, parse )
+      const validationValue = validator( newValueString, parse )
 
-      if (maybeError) {
-        if (preventWrongValue) updateValue( null )
-        else updateValue( parse( newValueString ), null )
+      if (typeof validationValue === `string`) {
+        if (preventWrongValue) updateValue( undefined, null )
+        else updateValue( newValueString, null )
 
         return
       }
@@ -102,33 +107,38 @@ export default function useFormElement<TValue=string, TParsedValue=TValue>({
 
       if (error) setError( null )
 
-      updateValue( parse( newValueString ) )
+      const validationResult = {
+        value: validationValue?.value === undefined ? newValueString : validationValue.value,
+      }
+
+      updateValue( validationResult.value )
     },
-    findValueError,
+    checkObjIsEvent,
     extractValueFromEventOrReturnObj,
   }
 }
 
 
 
-function findValueError( value, validator ) {
-  try {
-    validator?.( value )
-  } catch (err) {
-    return err
-  }
+function extractValueFromEventOrReturnObj( obj:unknown ) {
+  const isObjEvent = checkObjIsEvent( obj )
 
-  return null
+  if (!isObjEvent) return obj
+
+  if (obj.target && `value` in obj.target) return obj.target.value
+  if (obj.currentTarget && `value` in obj.currentTarget) return obj.target.value
+
+  return obj
 }
 
-function extractValueFromEventOrReturnObj( obj:unknown ) {
-  if (typeof obj !== `object` || obj == null) return obj
-  if (![ `SyntheticBaseEvent` ].includes( obj.constructor.name )) return obj
+function checkObjIsEvent( obj:unknown ): obj is BaseSyntheticEvent<InputEvent> {
+  if (typeof obj !== `object` || obj == null) return false
+  if (![ `SyntheticBaseEvent` ].includes( obj.constructor.name )) return false
 
   const probablyEvent = obj as { target?:{ value?:unknown }, currentTarget?:{ value?:unknown }}
 
-  if (probablyEvent.target && `value` in probablyEvent.target) return probablyEvent.target.value
-  if (probablyEvent.currentTarget && `value` in probablyEvent.currentTarget) return probablyEvent.currentTarget.value
+  if (probablyEvent.target && `value` in probablyEvent.target) return true
+  if (probablyEvent.currentTarget && `value` in probablyEvent.currentTarget) return true
 
-  return obj
+  return false
 }

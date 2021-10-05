@@ -72,7 +72,7 @@ export type NativeInputProps<TRef=HTMLInputElement, TValue=string> = {
 }
 
 export type InputProps<TRef=HTMLInputElement, TValue=string, TParsedValue=TValue> = FormElementProps<TValue, TParsedValue> & {
-  ref?: MutableRefObject<TRef | null>
+  innerRef?: MutableRefObject<TRef | null>
   label?: ReactNode,
   style?: CSSProperties,
   placeholder?: string,
@@ -117,9 +117,8 @@ export type NumberInputProps = WrappedInputProps<HTMLInputElement, string, numbe
   },
   min?: number,
   max?: number,
-  type?: `int` | `float`,
-  // TODO type?: `big int` | `int` | `float`,
-  step?: number | NumberRange | NumberRange[],
+  floatPrecision?: number,
+  type?: `big int` | `int` | `float`,
 }
 
 export type PasswordInputProps = WrappedInputProps & {

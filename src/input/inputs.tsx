@@ -1,5 +1,5 @@
 import { MutableRefObject } from "react"
-import { Parser, Validator } from "src/formElement/types.js"
+import { Parser, Validator, ValidatorValue } from "src/formElement/types.js"
 import { Input } from "./Input.js"
 import { EmailInputProps, InputAutocomplete, LinkInputProps, MediaInputProps, NumberInputProps, PasswordInputProps, TextInputProps } from "./types.js"
 
@@ -7,26 +7,40 @@ import { EmailInputProps, InputAutocomplete, LinkInputProps, MediaInputProps, Nu
 
 const MAX_SAFE_NUM = window?.Number.MAX_SAFE_INTEGER ??  1_000_000_000_000
 const MIN_SAFE_NUM = window?.Number.MIN_SAFE_INTEGER ?? -1_000_000_000_000
-const parseNumber = numberLike => {
+const parseNumber = (numberLike, isBigInt = false) => {
+  if (isBigInt) {
+    try {
+      return BigInt( numberLike )
+    } catch {
+      return null
+    }
+  }
+
   const number = window?.Number( numberLike ) ?? 1 * numberLike
 
   return isNaN( number ) ? null : number
 }
 
 
-function buildValidator<TValue=string, TParsedValue=TValue>( originalValidator:Validator<TValue, TParsedValue> | undefined, overridedValdiator:(value:TValue) => (boolean | string | undefined) ) {
+function buildValidator<TValue=string, TParsedValue=TValue>( originalValidator:Validator<TValue, TParsedValue> | undefined, overridedValdiator:(value:TValue) => (ValidatorValue<TValue>) ) {
   return (data:TValue, parse: Parser<TValue, TParsedValue>) => {
-    const errorLike = overridedValdiator( data )
+    let errorLike = overridedValdiator( data )
 
     if (typeof errorLike === `string`) return errorLike
 
-    return originalValidator?.( data, parse )
+    errorLike = originalValidator?.( errorLike?.value === undefined ? data : errorLike.value, parse ) ?? errorLike
+
+    if (typeof errorLike === `string`) return errorLike
+
+    return {
+      value: errorLike?.value === undefined ? data : errorLike.value,
+    }
   }
 }
 
 
 
-export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, emptyValue:userDefinedEmptyValue, ...restProps }:TextInputProps) {
+export function Text({ errors, long = false, maxLength = Infinity, regExp, innerRef, emptyValue:userDefinedEmptyValue, ...restProps }:TextInputProps) {
   const emptyValue = userDefinedEmptyValue ?? ``
   const validator = buildValidator( restProps.validator, string => {
     if (string.length > maxLength) return errors?.maxLength ?? `String is too long`
@@ -35,8 +49,8 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
 
   if (!long) return (
     <Input
-      ref={ref as MutableRefObject<HTMLInputElement>}
       {...restProps}
+      innerRef={innerRef as MutableRefObject<HTMLInputElement>}
       emptyValue={emptyValue}
       validator={validator}
       render={p => <input {...p} type="text" />}
@@ -45,8 +59,8 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
 
   return (
     <Input<HTMLTextAreaElement>
-      ref={ref as MutableRefObject<HTMLTextAreaElement>}
       {...restProps}
+      innerRef={innerRef as MutableRefObject<HTMLTextAreaElement>}
       emptyValue={emptyValue}
       validator={validator}
       render={
@@ -62,35 +76,61 @@ export function Text({ errors, long = false, maxLength = Infinity, regExp, ref, 
 }
 
 
-export function Number({ errors, min = MIN_SAFE_NUM, max = MAX_SAFE_NUM, type = `int`, step, emptyValue, ...restProps }:NumberInputProps) {
-  // TODO if (type !== `big int`) {
-  if (min < MIN_SAFE_NUM) {
-    console.warn( `Value of "min" parameter is lover than minimum safe number. Use "big int" input type.` )
+export function Number({ errors, type = `int`, min, max, emptyValue, floatPrecision = 8, ...restProps }:NumberInputProps) {
+  if (type === `big int`) {
+    min ||= -Infinity
+    max ||= Infinity
+  } else {
+    min ||= MIN_SAFE_NUM
+    max ||= MAX_SAFE_NUM
+
+    if (min < MIN_SAFE_NUM) {
+      console.warn( `Value of "min" parameter is lover than minimum safe number. Use "big int" input type.` )
+    }
+
+    if (max > MAX_SAFE_NUM) {
+      console.warn( `Value of "max" parameter is bigger than maximum safe number. Use "big int" input type.` )
+    }
   }
 
-  if (max > MAX_SAFE_NUM) {
-    console.warn( `Value of "max" parameter is bigger than maximum safe number. Use "big int" input type.` )
-  }
-  // }
+  const validator = buildValidator( restProps.validator, numberString => {
+    if (numberString === ``) return { value:null }
 
-  const validator = buildValidator( restProps.validator, numberLike => {
-    const number = parseNumber( numberLike )
+    if (/^0{2,}$/.test( numberString )) numberString = `0`
+    else if (/^0+[1-9]/.test( numberString )) {
+      numberString = numberString.slice( numberString.match( /^0+/ )![ 0 ]!.length )
+    }
 
-    if (number === null) return errors?.notANumber ?? `It's not a number!`
-    if (type === `int` && Math.floor( number ) !== number) return errors?.wrongType ?? `Number should be an inteeger`
-    if (max < number) return errors?.tooBig ?? `Number is too big`
-    if (number < min) return errors?.tooLow ?? `Number is too small`
+    const number = parseNumber( numberString, type === `big int` )
+
+    if (number === null) {
+      if (/^(0+|[^\d]{0,1})\+$/.test( numberString )) return { value:`+` }
+      if (/^(0+|[^\d]{0,1})-$/.test( numberString )) return { value:`-` }
+
+      return errors?.notANumber ?? `It's not a number!`
+    }
+
+    if (type === `float`) {
+      if ((numberString.split( `.` )[ 1 ]?.length ?? 0) > floatPrecision) {
+        return errors?.wrongType ?? `Number should be an inteeger`
+      }
+    } else if (/\d+\./.test( numberString )) return errors?.wrongType ?? `Number should be an inteeger`
+
+    if (max! < number) return errors?.tooBig ?? `Number is too big`
+    if (number < min!) return errors?.tooLow ?? `Number is too small`
+
+    return { value:numberString }
   } )
 
   return (
-    <Input<HTMLInputElement, string, number>
+    <Input<HTMLInputElement, string, number | bigint>
       preventWrongValue
       {...restProps}
       emptyValue={emptyValue ?? 0}
       validator={validator}
-      parse={v => parseNumber( v )!}
+      parse={v => parseNumber( v, type === `big int` )!}
       inputify={v => v.toString()}
-      render={p => <input {...p} step={typeof step === `number` ? step : undefined} type="number" min={min} max={max}  />}
+      render={p => <input {...p} type="text" />}
     />
   )
 }

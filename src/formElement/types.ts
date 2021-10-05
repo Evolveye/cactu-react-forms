@@ -7,9 +7,11 @@ export type FormElementMeta<TValue=string> = {
 }
 
 export type ValidationError = string
+export type ValidationResult<TValue> = { value?:TValue | null }
+export type ValidatorValue<TValue> = ValidationError | ValidationResult<TValue> | undefined
 export type Parser<TInput=string, TOutput=TInput> = (value:TInput) => TOutput
 export type Inputifier<TInput=string, TOutput=TInput> = (value:TInput) => TOutput
-export type Validator<TValue=string, TParsedValue=TValue> = (value:TValue, parser:Parser<TValue, TParsedValue>) => ValidationError | undefined
+export type Validator<TValue=string, TParsedValue=TValue> = (value:TValue | null, parser:Parser<TValue, TParsedValue>) => ValidatorValue<TValue>
 
 export type FormElementsValues<TValue=string> = Record<string, FormElementMeta<TValue>>
 export type FormElementProps<TValue=string, TParsedValue=TValue> = {
