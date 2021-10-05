@@ -58,9 +58,9 @@ export default function useFormElement<TValue=string, TParsedValue=TValue>({
 
     const update = (v, doInputValue = false) => {
       const inputifiedValue = inputify( v )
-      const error = validator( inputifiedValue, parse )
+      const validationValue = validator( inputifiedValue, parse )
 
-      if (error) return updateValue( undefined, null )
+      if (typeof validationValue === `string`) return updateValue( undefined, null )
 
       updateValue( inputifiedValue )
       if (doInputValue) setValue( inputifiedValue )
